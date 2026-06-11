@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomText extends StatelessWidget {
-  const CustomText( {
+  const CustomText({
     super.key,
     required this.text,
     this.color,
@@ -21,9 +21,8 @@ class CustomText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      maxLines: 10,
-      overflow: TextOverflow.ellipsis,
-      textAlign: iscenter ? TextAlign.center : TextAlign.left,
+      maxLines: null,
+      textAlign: iscenter ? TextAlign.center : TextAlign.start,
       style: TextStyle(
         fontSize: size?.sp ?? 16.sp,
         color: color,

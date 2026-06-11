@@ -3,14 +3,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
-import 'package:rewarding_kids/features/child/data/task_model.dart';
+import 'package:rewarding_kids/features/child/data/models/task_model.dart';
 import 'package:rewarding_kids/features/child/widgets/CameraInContainer.dart';
 import 'package:rewarding_kids/features/child/widgets/homeAppbar.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
 
 class Takeimage extends StatelessWidget {
   const Takeimage({super.key, required this.Taskdetails});
- final TaskModel Taskdetails;
+  final TaskModel Taskdetails;
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +28,13 @@ class Takeimage extends StatelessWidget {
                       if (context.canPop()) {
                         context.pop();
                       } else {
-                        context.go('/home_child');
+                        context.go('/Custombottomnav');
                       }
                     },
                   ),
                   SizedBox(width: 70.w),
                   CustomText(
-                    text: Taskdetails.TaskTitle,
+                    text: Taskdetails.titleEn,
                     iscenter: true,
                     size: 20.sp,
                     color: AppColors.titleColor,
@@ -45,10 +45,9 @@ class Takeimage extends StatelessWidget {
               SizedBox(height: 25.h),
               HomeAppbar(),
               SizedBox(height: 30.h),
+
               /// Expanded لتجنب overflow
-              Expanded(
-                child: CameraInContainer(Taskdetails: Taskdetails),
-              ),
+              Expanded(child: CameraInContainer(Taskdetails: Taskdetails)),
             ],
           ),
         ),

@@ -32,9 +32,10 @@ class GiftsHeader extends StatelessWidget {
         ],
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SvgPicture.asset('assets\icons\gift.svg', width: 40.w, height: 40.h),
+          SvgPicture.asset('assets/icons/gift.svg', width: 40.w, height: 40.h),
           SizedBox(height: 8.h),
           CustomText(
             text: 'Gifts & Rewards',
@@ -65,7 +66,7 @@ class GiftsHeader extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets\child\coins.png',
+                    'assets/child/coins.png',
                     width: 16.w,
                     height: 16.h,
                   ),

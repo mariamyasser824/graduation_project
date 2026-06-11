@@ -10,10 +10,12 @@ class Loginbutton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-    width: double.infinity,
-    height: MediaQuery.of(context).size.height*0.053, // متناسب مع حجم الشاشة
+      width: double.infinity,
+      height: 48.h,
+      // متناسب مع حجم الشاشة
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
+          padding: EdgeInsets.symmetric(vertical: 14.h),
           foregroundColor: AppColors.Background,
           side: BorderSide(color: AppColors.ActiveColor, width: 1.25.w),
           shape: RoundedRectangleBorder(
@@ -21,7 +23,7 @@ class Loginbutton extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          context.go('/login');
+          context.push('/login');
         },
         child: CustomText(
           text: 'Already have an account? Log In',

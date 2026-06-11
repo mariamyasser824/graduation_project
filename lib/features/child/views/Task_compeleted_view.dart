@@ -9,7 +9,7 @@ import 'package:rewarding_kids/Shared/Custombutton.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
 import 'package:rewarding_kids/features/child/cubit/progress_cubit.dart';
 import 'package:rewarding_kids/features/child/cubit/progress_state.dart';
-import 'package:rewarding_kids/features/child/data/task_model.dart';
+import 'package:rewarding_kids/features/child/data/models/task_model.dart';
 import 'package:rewarding_kids/features/child/widgets/celebration.dart';
 import 'package:rewarding_kids/features/child/widgets/coin.dart';
 import 'package:rewarding_kids/features/child/widgets/homeAppbar.dart';
@@ -46,9 +46,7 @@ class _TaskCompletedViewState extends State<TaskCompletedView> {
 
   Future<void> _startCelebration() async {
     try {
-      await _audioPlayer.play(
-        AssetSource('sounds/celebration_sound.mp3'),
-      );
+      await _audioPlayer.play(AssetSource('sounds/celebration_sound.mp3'));
     } catch (e) {
       print("Audio error: $e");
     }
@@ -71,27 +69,32 @@ class _TaskCompletedViewState extends State<TaskCompletedView> {
               alignment: Alignment.center,
               children: [
                 /// 🎉 الـ GIF يظهر طول ما showCelebration = true
-                 CelebrationGIF(show:_showCelebration ),
+                CelebrationGIF(show: _showCelebration),
 
                 /// الصفحة الأساسية
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 16.h,
+                  ),
                   child: Column(
                     children: [
                       Row(
                         children: [
-                          Popbutton(onPressed: () {
-                            if (context.canPop()) {
-                              context.pop();
-                            } else {
-                              context.go('/do_task');
-                            }
-                          }),
-                        
+                          Popbutton(
+                            onPressed: () {
+                              if (context.canPop()) {
+                                context.pop();
+                              } else {
+                                context.go('/do_task');
+                              }
+                            },
+                          ),
+
                           Expanded(
                             child: Center(
                               child: CustomText(
-                                text: widget.taskDetails.TaskTitle,
+                                text: widget.taskDetails.titleEn,
                                 iscenter: true,
                                 size: 20.sp,
                                 color: AppColors.titleColor,
@@ -106,22 +109,40 @@ class _TaskCompletedViewState extends State<TaskCompletedView> {
                       SizedBox(height: 30.h),
 
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 13.h),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 13.h,
+                        ),
                         child: SizedBox(
                           width: double.infinity,
                           height: 375.h,
-                          child: 
-                          Column(
+                          child: Column(
                             children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(15.r),
                                 child: SizedBox(
                                   width: 278.w,
                                   height: 210.h,
-                                  child: Image.asset(
-                                    widget.taskDetails.image,
-                                    fit: BoxFit.fill,
-                                  ),
+                                  child: (widget.taskDetails.hasIcon)
+                                      ? Image.network(
+                                          widget.taskDetails.iconUrl!,
+                                          width: 278.w,
+                                          height: 210.h,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return Image.asset(
+                                                  'assets/child/drawflower.jpg',
+                                                  width: 278.w,
+                                                  height: 210.h,
+                                                );
+                                              },
+                                        )
+                                      : Image.asset(
+                                          'assets/child/drawflower.jpg',
+                                          width: 278.w,
+                                          height: 210.h,
+                                        ),
                                 ),
                               ),
                               SizedBox(height: 30.h),
@@ -144,7 +165,7 @@ class _TaskCompletedViewState extends State<TaskCompletedView> {
                                   ),
                                 ],
                               ),
-                          Spacer(),
+                              Spacer(),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -158,7 +179,7 @@ class _TaskCompletedViewState extends State<TaskCompletedView> {
                                   SizedBox(width: 10.h),
                                   const Coin(),
                                   CustomText(
-                                    text: '${widget.taskDetails.point}',
+                                    text: '${widget.taskDetails.basePoints}',
                                     iscenter: true,
                                     size: 18.sp,
                                     weight: FontWeight.w500,
@@ -170,7 +191,7 @@ class _TaskCompletedViewState extends State<TaskCompletedView> {
                           ),
                         ),
                       ),
-              Spacer(),
+                      Spacer(),
 
                       /// زر الذهاب للصفحة التالية
                       Custombutton(
@@ -184,6 +205,8 @@ class _TaskCompletedViewState extends State<TaskCompletedView> {
                           });
 
                           // الانتقال
+                          context.read<ProgressCubit>().fetchPoints(); // 🔥
+
                           context.go('/Custombottomnav');
                         },
                         text: 'Next Task',
@@ -198,4 +221,4 @@ class _TaskCompletedViewState extends State<TaskCompletedView> {
       ),
     );
   }
-}  
+}

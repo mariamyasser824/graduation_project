@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
+import 'package:rewarding_kids/features/Parent_registar/cubit/child_cubit.dart';
+import 'package:rewarding_kids/features/Parent_registar/cubit/child_state.dart';
 import 'package:rewarding_kids/features/Parent_registar/widgets/age_buttons.dart';
 import 'package:rewarding_kids/features/Parent_registar/widgets/progress_bar.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
@@ -29,16 +32,22 @@ class AgeView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Popbutton(onPressed: () {
-                    context.go('/child_gender');
-                  }),
+                  Popbutton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                  ),
                 ],
               ),
 
               SizedBox(height: size.height * 0.03),
 
               // Progress Bar
-              AnimatedGradientProgress(progress: 0.6),
+              BlocBuilder<ChildRegistrationCubit, ChildRegistrationState>(
+                builder: (context, state) {
+                  return AnimatedGradientProgress(progress: state.progress);
+                },
+              ),
 
               SizedBox(height: size.height * 0.05),
 
@@ -54,7 +63,7 @@ class AgeView extends StatelessWidget {
 
               CustomText(
                 text:
-                'We will use the age to show activities and rewards that fit perfectly!',
+                    'We will use the age to show activities and rewards that fit perfectly!',
                 iscenter: true,
                 size: 14.sp,
                 weight: FontWeight.w400,
@@ -73,7 +82,7 @@ class AgeView extends StatelessWidget {
 
               Custombutton(
                 onPressed: () {
-                  context.go('/relation');
+                  context.push('/relation');
                 },
                 text: 'Continue',
               ),

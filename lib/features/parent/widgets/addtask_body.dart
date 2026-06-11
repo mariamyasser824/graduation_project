@@ -5,8 +5,8 @@ import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
 import 'package:rewarding_kids/features/parent/cubit/tasks_cubit/add_task_cubit.dart';
 import 'package:rewarding_kids/features/parent/cubit/tasks_cubit/add_task_state.dart';
-import 'package:rewarding_kids/features/parent/data/add_task_model.dart';
-import 'package:rewarding_kids/features/parent/data/task_model.dart';
+import 'package:rewarding_kids/features/parent/models/add_task_model.dart';
+import 'package:rewarding_kids/features/parent/models/child_task_model.dart';
 import 'package:rewarding_kids/features/parent/widgets/addtask_appar.dart';
 import 'package:rewarding_kids/features/parent/widgets/empty_tasks_state.dart';
 import 'package:rewarding_kids/features/parent/widgets/sectionHeafer.dart';
@@ -21,7 +21,7 @@ class AddTaskBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => AddTaskCubit(),
+      create: (_) => AddTaskCubit()..getCategories(),
       child: Column(
         children: [
           Expanded(
@@ -104,46 +104,21 @@ class AddTaskBody extends StatelessWidget {
                     BlocBuilder<AddTaskCubit, AddTaskState>(
                       builder: (context, state) {
                         final form = state.form;
-
-                        // لو مفيش اختيار، نعرض Empty
                         if (form.category == null &&
                             form.subCategory == null &&
                             form.level == null) {
                           return const EmptyTasksState();
                         }
 
-                        // فلترة المهام مع حماية من null
-                        final filtered = addTasks.where((task) {
-                          if (form.category != null &&
-                              task.category != null &&
-                              task.category != form.category) {
-                            return false;
-                          }
-
-                          if (form.subCategory != null &&
-                              task.subCategory != null &&
-                              task.subCategory != form.subCategory) {
-                            return false;
-                          }
-
-                          if (form.level != null &&
-                              task.level != null &&
-                              task.level != form.level) {
-                            return false;
-                          }
-
-                          return true;
-                        }).toList();
-
-                        if (filtered.isEmpty) return const EmptyTasksState();
+                        final tasks = state.tasks;
+                        if (tasks.isEmpty) return const EmptyTasksState();
 
                         return ListView.builder(
-                          physics:
-                              const NeverScrollableScrollPhysics(), // Scroll من SingleChildScrollView
-                          shrinkWrap: true, // مهم عشان ListView جوا Scroll
-                          itemCount: filtered.length,
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: tasks.length,
                           itemBuilder: (context, index) {
-                            return TaskSelectCard(task: filtered[index]);
+                            return TaskSelectCard(task: tasks[index]);
                           },
                         );
                       },

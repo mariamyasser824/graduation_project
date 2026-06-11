@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rewarding_kids/core/utils/pref_helper.dart';
 import 'package:rewarding_kids/features/onboarding/data/onboardingdata.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/Indicator.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/nextbutton.dart';
@@ -30,6 +31,7 @@ class _OnboardingSliderState extends State<OnboardingSlider> {
         Expanded(
           child: PageView.builder(
             allowImplicitScrolling: false,
+            physics: NeverScrollableScrollPhysics(),
             controller: widget.controller,
             onPageChanged: (index) {
               setState(() => currentIndex = index);
@@ -55,14 +57,15 @@ class _OnboardingSliderState extends State<OnboardingSlider> {
               Nextbutton(
                 currentPage: currentIndex,
                 totalPages: onboardingData.length,
-                onNext: () {
+                onNext: () async {
                   if (currentIndex < onboardingData.length - 1) {
                     widget.controller.nextPage(
                       duration: const Duration(milliseconds: 200),
                       curve: Curves.easeInOut,
                     );
                   } else {
-                    context.go('/getstarted');
+                    await PrefHelper.setOnBoardingSeen();
+                    context.push('/getstarted');
                   }
                 },
               ),

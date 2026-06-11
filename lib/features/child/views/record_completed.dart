@@ -13,9 +13,9 @@ import 'package:rewarding_kids/Shared/Custombutton.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
 import 'package:rewarding_kids/features/child/cubit/progress_cubit.dart';
 import 'package:rewarding_kids/features/child/cubit/progress_state.dart';
-import 'package:rewarding_kids/features/child/data/task_model.dart';
+import 'package:rewarding_kids/features/child/data/models/task_model.dart';
 import 'package:rewarding_kids/features/child/widgets/AudioWaveformWidget.dart';
-import 'package:rewarding_kids/features/child/widgets/WaveformPlayerWidge.dart';
+
 import 'package:rewarding_kids/features/child/widgets/celebration.dart';
 import 'package:rewarding_kids/features/child/widgets/coin.dart';
 import 'package:rewarding_kids/features/child/widgets/homeAppbar.dart';
@@ -98,7 +98,7 @@ class _RecordCompletedViewState extends State<RecordCompletedView> {
                           SizedBox(width: 70.w),
                           Expanded(
                             child: CustomText(
-                              text: widget.Taskdetails.TaskTitle,
+                              text: widget.Taskdetails.titleEn,
                               iscenter: true,
                               size: 20.sp,
                               color: AppColors.titleColor,
@@ -112,22 +112,26 @@ class _RecordCompletedViewState extends State<RecordCompletedView> {
                       HomeAppbar(),
                       SizedBox(height: 150.h),
                       RecordedVoiceBubble(audioPath: widget.audioPath),
-
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: CustomText(
-                              text: "You said all the days perfectly.",
-                              iscenter: true,
-                              size: 20.sp,
-                              color: AppColors.titleColor,
-                              weight: FontWeight.w400,
+                      SizedBox(height: 40.h),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50.h,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: CustomText(
+                                text: "You said all the days perfectly.",
+                                iscenter: true,
+                                size: 20.sp,
+                                color: AppColors.titleColor,
+                                weight: FontWeight.w400,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                      SizedBox(height: 50.h),
+                      SizedBox(height: 30.h),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -139,6 +143,13 @@ class _RecordCompletedViewState extends State<RecordCompletedView> {
                             color: AppColors.titleColor,
                           ),
                           SizedBox(width: 10.h),
+                          CustomText(
+                            text: '${widget.Taskdetails.basePoints}',
+                            iscenter: true,
+                            size: 18.sp,
+                            weight: FontWeight.w500,
+                            color: AppColors.titleColor,
+                          ),
                           const Coin(),
                         ],
                       ),
@@ -156,6 +167,10 @@ class _RecordCompletedViewState extends State<RecordCompletedView> {
                           });
 
                           // الانتقال
+                          context
+                              .read<ProgressCubit>()
+                              .fetchPoints(); // 🔥 أهم سطر
+
                           context.go('/Custombottomnav');
                         },
                         text: 'Great',

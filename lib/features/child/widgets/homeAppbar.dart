@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
+import 'package:rewarding_kids/features/child/cubit/progress_cubit.dart';
+import 'package:rewarding_kids/features/child/cubit/progress_state.dart';
+import 'package:rewarding_kids/features/child/data/repos/points_repo.dart';
 import 'package:rewarding_kids/features/child/widgets/PointsProgressBar.dart';
 import 'package:rewarding_kids/features/child/widgets/child_avatar.dart';
 import 'package:rewarding_kids/features/child/widgets/coin.dart';
@@ -11,26 +15,39 @@ class HomeAppbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 50.h, // ارتفاع مناسب للـ Row
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          ChildAvatar(),
-          SizedBox(width: 8.w),
-          CustomText(
-            text: 'Nilly',
-            iscenter: false,
-            size: 16.sp,
-            weight: FontWeight.w500,
-            color: AppColors.titleColor,
-          ),
-          SizedBox(width: 8.w),
-          PointsProgressBar(),
-          SizedBox(width: 8.w),
-          Coin(),
-        ],
+    return BlocProvider(
+      create: (context) => ProgressCubit(PointsRepo())..fetchPoints(),
+
+      child: SizedBox(
+        width: double.infinity,
+        height: 50.h, // ارتفاع مناسب للـ Row
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ChildAvatar(),
+            SizedBox(width: 8.w),
+            CustomText(
+              text: 'Nilly',
+              iscenter: false,
+              size: 16.sp,
+              weight: FontWeight.w500,
+              color: AppColors.titleColor,
+            ),
+            SizedBox(width: 8.w),
+            BlocBuilder<ProgressCubit, ProgressState>(
+              builder: (context, state) {
+                return PointsProgressBar(
+                  totalPoints: state.totalPoints,
+                  goalPoints: state.goalPoints,
+                  isLoading: state.status == ProgressStatus.loading,
+                  isError: state.status == ProgressStatus.error,
+                );
+              },
+            ),
+            SizedBox(width: 8.w),
+            Coin(),
+          ],
+        ),
       ),
     );
   }

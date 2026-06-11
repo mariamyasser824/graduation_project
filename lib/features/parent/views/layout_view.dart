@@ -15,19 +15,16 @@ class LayoutView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => LayoutCubit(),
-      child: BlocBuilder<LayoutCubit, LayoutState>(
-        builder: (context, state) {
-          return SafeArea(
-            child: Scaffold(
-              backgroundColor: AppColors.Background,
-              body: _screens[state.currentIndex],
-              bottomNavigationBar: CustomBottomNav2(),
-            ),
-          );
-        },
-      ),
+    return BlocBuilder<LayoutCubit, LayoutState>(
+      builder: (context, state) {
+        return SafeArea(
+          child: Scaffold(
+            backgroundColor: AppColors.Background,
+            body: _screens[state.currentIndex],
+            bottomNavigationBar: CustomBottomNav2(),
+          ),
+        );
+      },
     );
   }
 }

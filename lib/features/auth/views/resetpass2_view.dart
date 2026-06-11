@@ -27,11 +27,7 @@ class Resetpass2View extends StatelessWidget {
                   children: [
                     Popbutton(
                       onPressed: () {
-                        if (context.canPop()) {
-                          context.pop();
-                        } else {
-                          context.go('/login');
-                        }
+                        context.pop();
                       },
                     ),
                   ],
@@ -54,7 +50,8 @@ class Resetpass2View extends StatelessWidget {
                 ),
                 SizedBox(height: 15.h),
                 CustomText(
-                  text: 'Your password has been successfully reset\nClick below to log in magically.',
+                  text:
+                      'Your password has been successfully reset\nClick below to log in magically.',
                   iscenter: true,
                   color: AppColors.titleColor,
                   weight: FontWeight.w400,
@@ -63,7 +60,7 @@ class Resetpass2View extends StatelessWidget {
                 SizedBox(height: 25.h),
                 Custombutton(
                   onPressed: () {
-                    context.go('/login');
+                    context.push('/login');
                   },
                   text: 'Sign in',
                 ),

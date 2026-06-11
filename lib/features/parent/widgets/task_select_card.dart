@@ -5,7 +5,7 @@ import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
 import 'package:rewarding_kids/features/parent/cubit/tasks_cubit/add_task_cubit.dart';
 import 'package:rewarding_kids/features/parent/cubit/tasks_cubit/add_task_state.dart';
-import 'package:rewarding_kids/features/parent/data/add_task_model.dart';
+import 'package:rewarding_kids/features/parent/models/add_task_model.dart';
 import 'package:rewarding_kids/features/parent/widgets/TaskActions.dart';
 
 class TaskSelectCard extends StatelessWidget {
@@ -16,6 +16,8 @@ class TaskSelectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AddTaskCubit, AddTaskState>(
+      buildWhen: (previous, current) =>
+          previous.selectedTask != current.selectedTask,
       builder: (context, state) {
         final isSelected =
             state.selectedTask != null && state.selectedTask!.id == task.id;
@@ -56,51 +58,26 @@ class TaskSelectCard extends StatelessWidget {
                       ],
                     ),
                     SizedBox(height: 6.h),
+
+                    // SubCategory
                     CustomText(
-                      text: "Listen to a short story without interrupting.",
-                      iscenter: true,
+                      text: task.description,
+                      iscenter: false,
                       size: 12.sp,
                       color: AppColors.descColor,
                       weight: FontWeight.w400,
                     ),
                     SizedBox(height: 6.h),
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.2,
-                              //  height: MediaQuery.of(context).size.height * 0.03,
-                              decoration: BoxDecoration(
-                                color: Color(0xffE4E4E4),
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
-                              child: CustomText(
-                                text: task.category,
-                                iscenter: true,
-                                size: 14.sp,
-                                color: Color(0xff60697B),
-                                weight: FontWeight.w400,
-                              ),
-                            ),
+                            _buildInfoBox(task.subCategory),
                             SizedBox(width: 6.w),
-                            Container(
-                              width: MediaQuery.of(context).size.width * 0.2,
-                              //  height: MediaQuery.of(context).size.height * 0.03,
-                              decoration: BoxDecoration(
-                                color: Color(0xffE4E4E4),
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
-                              child: CustomText(
-                                text: task.level,
-                                iscenter: true,
-                                size: 14.sp,
-                                color: Color(0xff60697B),
-                                weight: FontWeight.w400,
-                              ),
-                            ),
+                            _buildInfoBox(task.level),
                           ],
                         ),
 
@@ -141,6 +118,23 @@ class TaskSelectCard extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildInfoBox(String text) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: const Color(0xffE4E4E4),
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: CustomText(
+        text: text,
+        iscenter: true,
+        size: 14.sp,
+        color: const Color(0xff60697B),
+        weight: FontWeight.w400,
+      ),
     );
   }
 }

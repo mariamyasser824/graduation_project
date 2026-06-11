@@ -54,6 +54,7 @@ class _RecordedVoiceBubbleState extends State<RecordedVoiceBubble> {
     super.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
     // Safety check
     if (!File(widget.audioPath).existsSync()) {
@@ -69,8 +70,8 @@ class _RecordedVoiceBubbleState extends State<RecordedVoiceBubble> {
         ),
       );
     }
-
-    return Container(
+    /*
+Container(
       width: 300.w,
       height: 62.h,
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
@@ -86,9 +87,16 @@ class _RecordedVoiceBubbleState extends State<RecordedVoiceBubble> {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          VoiceMessageView(
+      child:
+     */
+
+    return Column(
+      children: [
+        Container(
+          width: 310.w,
+          height: 95.h,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16.r)),
+          child: VoiceMessageView(
             controller: VoiceController(
               audioSrc: widget.audioPath,
               isFile: true,
@@ -98,22 +106,22 @@ class _RecordedVoiceBubbleState extends State<RecordedVoiceBubble> {
               onPlaying: () {},
             ),
 
-            innerPadding: 12,
+            backgroundColor: Color(0xffB9A2C5),
+            playPauseButtonLoadingColor: Colors.white,
+            circlesColor: Color(0xff7B6C83).withOpacity(0.4),
+            counterTextStyle: TextStyle(
+              color: Color(0xff7B6C83),
+              fontSize: 12.sp,
+            ),
+            activeSliderColor: Colors.white,
+            //size: 50,
+            // innerPadding: 12,
             cornerRadius: 20,
           ),
+        ),
 
-          SizedBox(height: 6.h),
-
-          Text(
-            _audioDuration != null ? _formatDuration(_audioDuration!) : '--:--',
-            style: TextStyle(
-              fontSize: 12.sp,
-              color: Colors.white.withOpacity(0.85),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
+        SizedBox(height: 6.h),
+      ],
     );
   }
 }

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
+import 'package:rewarding_kids/core/utils/pref_helper.dart';
+import 'package:rewarding_kids/features/Parent_registar/cubit/child_cubit.dart';
+import 'package:rewarding_kids/features/Parent_registar/cubit/child_state.dart';
 import 'package:rewarding_kids/features/Parent_registar/widgets/progress_bar.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
 import 'package:rewarding_kids/features/Parent_registar/widgets/avatar_grid.dart';
@@ -17,7 +21,7 @@ class AvatarView extends StatefulWidget {
 class _AvatarViewState extends State<AvatarView> {
   int? selectedAvatar;
 
-  List<String> avatars = [
+  final List<String> avatars = [
     'assets/avatars/avatar1.svg',
     'assets/avatars/avatar2.svg',
     'assets/avatars/avatar3.svg',
@@ -29,89 +33,143 @@ class _AvatarViewState extends State<AvatarView> {
     'assets/avatars/avatar9.svg',
     'assets/avatars/avatar10.svg',
     'assets/avatars/avatar11.svg',
-    'ADD_IMAGE', // آخر واحدة زر إضافة
+    'ADD_IMAGE',
   ];
+
+  bool _dialogShown = false;
 
   @override
   Widget build(BuildContext context) {
     final h = 1.sh;
 
-    return Scaffold(
-      backgroundColor: AppColors.Background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// Back button
-              Row(
-                children: [
-                  Popbutton(onPressed: () => context.go('/relation')),
-                ],
-              ),
-              SizedBox(height: h * 0.02),
+    return BlocListener<ChildRegistrationCubit, ChildRegistrationState>(
+      listener: (context, state) async {
+        /// loading
+        if (state.isLoading && !_dialogShown) {
+          _dialogShown = true;
 
-              /// Progress
-              AnimatedGradientProgress(progress: 1),
-              SizedBox(height: h * 0.03),
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const Center(child: CircularProgressIndicator()),
+          );
+        }
 
-              /// Title
-              Center(
-                child: Column(
-                  children: [
-                    Text(
-                      "Choose Child Avatar",
-                      style: TextStyle(
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: h * 0.01),
-                    Text(
-                      "Express avatar to enjoy kid character vibe",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14.sp,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: h * 0.03),
+        /// success
+        if (!state.isLoading && state.child != null) {
+          if (_dialogShown && Navigator.canPop(context)) {
+            Navigator.pop(context);
+            _dialogShown = false;
+          }
 
-              /// Avatar Grid
-              SizedBox(
-                height: h * 0.42, // الجريد ثابت عشان زرار Continue يبقى قريب
-                child: AvatarGrid(
-                  avatars: avatars,
-                  selectedAvatar: selectedAvatar,
-                  onAvatarSelected: (index) {
-                    setState(() {
-                      selectedAvatar = index;
-                    });
-                  },
-                  onCustomImagePicked: (path) {
-                    setState(() {
-                      avatars[avatars.length - 1] = path;
-                      selectedAvatar = avatars.length - 1;
-                    });
+          context.push('/account_done', extra: state.child);
+        }
+
+        /// error
+        if (!state.isLoading && state.error != null) {
+          if (_dialogShown && Navigator.canPop(context)) {
+            Navigator.pop(context);
+            _dialogShown = false;
+          }
+
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.error!)));
+        }
+      },
+
+      child: Scaffold(
+        backgroundColor: AppColors.Background,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// Back button
+                Row(children: [Popbutton(onPressed: () => context.pop())]),
+
+                SizedBox(height: h * 0.02),
+
+                /// Progress
+                BlocBuilder<ChildRegistrationCubit, ChildRegistrationState>(
+                  builder: (context, state) {
+                    return AnimatedGradientProgress(progress: state.progress);
                   },
                 ),
-              ),
 
-              SizedBox(height: h * 0.03),
+                SizedBox(height: h * 0.03),
 
-              /// Continue Button
-              Custombutton(
-                text: "Continue",
-                onPressed: () {
-                  context.go("/account_done");
-                },
-              ),
-            ],
+                /// Title
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        "Choose Child Avatar",
+                        style: TextStyle(
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: h * 0.01),
+                      Text(
+                        "Express avatar to enjoy kid character vibe",
+                        style: TextStyle(color: Colors.grey, fontSize: 14.sp),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: h * 0.03),
+
+                /// Avatar Grid
+                SizedBox(
+                  height: h * 0.42,
+                  child: AvatarGrid(
+                    avatars: avatars,
+                    selectedAvatar: selectedAvatar,
+
+                    onAvatarSelected: (index) {
+                      setState(() {
+                        selectedAvatar = index;
+                      });
+                    },
+
+                    onCustomImagePicked: (path) {
+                      setState(() {
+                        avatars[avatars.length - 1] = path;
+                        selectedAvatar = avatars.length - 1;
+                      });
+                    },
+                  ),
+                ),
+
+                SizedBox(height: h * 0.03),
+
+                /// Continue Button
+                Custombutton(
+                  text: "Continue",
+                  onPressed: () {
+                    if (selectedAvatar == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Please select an avatar"),
+                        ),
+                      );
+                      return;
+                    }
+
+                    final cubit = context.read<ChildRegistrationCubit>();
+
+                    cubit.setAvatar(avatars[selectedAvatar!]);
+
+                    cubit.submit();
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
 
 class Otpwidget extends StatelessWidget {
-  Otpwidget({super.key, required this.secondsRemaining, required this.enableResend, required this.otpControllers});
+  Otpwidget({
+    super.key,
+    required this.secondsRemaining,
+    required this.enableResend,
+    required this.otpControllers,
+  });
 
   final int secondsRemaining;
   final bool enableResend;
@@ -20,8 +26,8 @@ class Otpwidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(
-            4,
-                (index) => SizedBox(
+            6,
+            (index) => SizedBox(
               width: 48.w,
               height: 48.h,
               child: TextField(
@@ -30,6 +36,7 @@ class Otpwidget extends StatelessWidget {
                 style: TextStyle(fontSize: 16.sp),
                 keyboardType: TextInputType.number,
                 maxLength: 1,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   counterText: "",
                   filled: true,
@@ -40,8 +47,10 @@ class Otpwidget extends StatelessWidget {
                   ),
                 ),
                 onChanged: (val) {
-                  if (val.isNotEmpty && index < 3) {
+                  if (val.isNotEmpty && index < otpControllers.length - 1) {
                     FocusScope.of(context).nextFocus();
+                  } else if (val.isEmpty && index > 0) {
+                    FocusScope.of(context).previousFocus();
                   }
                 },
               ),

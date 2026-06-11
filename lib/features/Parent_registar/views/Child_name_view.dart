@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
 import 'package:rewarding_kids/Shared/Customtextformfiled.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
+import 'package:rewarding_kids/features/Parent_registar/cubit/child_cubit.dart';
+import 'package:rewarding_kids/features/Parent_registar/cubit/child_state.dart';
+import 'package:rewarding_kids/features/Parent_registar/data/child_repository.dart';
+import 'package:rewarding_kids/features/Parent_registar/data/childService.dart';
 import 'package:rewarding_kids/features/Parent_registar/widgets/optionaltextformfiled.dart';
 import 'package:rewarding_kids/features/Parent_registar/widgets/progress_bar.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
@@ -66,18 +71,20 @@ class _ChildNameViewState extends State<ChildNameView> {
                   // Back button
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Popbutton(
-                      onPressed: () => context.go('/login'),
-                    ),
+                    child: Popbutton(onPressed: () => context.pop()),
                   ),
-    
+
                   SizedBox(height: h * 0.02),
-    
+
                   // Progress Bar
-                  AnimatedGradientProgress(progress: progress),
-    
+                  BlocBuilder<ChildRegistrationCubit, ChildRegistrationState>(
+                    builder: (context, state) {
+                      return AnimatedGradientProgress(progress: state.progress);
+                    },
+                  ),
+
                   SizedBox(height: h * 0.03),
-    
+
                   // Title
                   CustomText(
                     text: 'What’s Your Child’s Name?',
@@ -87,17 +94,17 @@ class _ChildNameViewState extends State<ChildNameView> {
                     color: AppColors.titleColor,
                   ),
                   SizedBox(height: h * 0.015),
-    
+
                   CustomText(
                     text:
-                    'We will use this name throughout the app to make them feel at home',
+                        'We will use this name throughout the app to make them feel at home',
                     iscenter: true,
                     size: 14.sp,
                     weight: FontWeight.w400,
                     color: AppColors.descColor,
                   ),
                   SizedBox(height: h * 0.03),
-    
+
                   // Full Name field
                   Customtextformfiled(
                     hint: 'Full Name',
@@ -107,22 +114,44 @@ class _ChildNameViewState extends State<ChildNameView> {
                     icon: Icons.person_outline_rounded,
                   ),
                   SizedBox(height: h * 0.02),
-    
+
                   // Nickname field
                   Optionaltextformfiled(
-                      hint: 'Nick Name',
+                    hint: 'Nick Name',
                     isPassword: false,
                     controller: NnameController,
                     label: 'Nick Name ',
                     icon: Icons.person_outline_rounded,
                   ),
-                
+
                   SizedBox(height: h * 0.04),
-    
+
                   // Next Button
                   Custombutton(
                     onPressed: () {
-                      context.go('/child_gender');
+                      final cubit = context.read<ChildRegistrationCubit>();
+                      final name = FnameController.text;
+                      final nick = NnameController.text;
+
+                      if (name.isEmpty) return;
+
+                      try {
+                        cubit.setName(name, nick);
+                        if (name.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Please enter full name"),
+                            ),
+                          );
+                          return;
+                        }
+
+                        context.push('/child_gender');
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: ${e.toString()}')),
+                        );
+                      }
                     },
                     text: 'Next',
                   ),

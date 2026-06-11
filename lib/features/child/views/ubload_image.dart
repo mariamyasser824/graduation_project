@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
-import 'package:rewarding_kids/features/child/data/task_model.dart';
+import 'package:rewarding_kids/features/child/cubit/SubmitTaskCubit.dart';
+import 'package:rewarding_kids/features/child/cubit/SubmitTaskState%20.dart';
+import 'package:rewarding_kids/features/child/data/models/task_model.dart';
 import 'package:rewarding_kids/features/child/widgets/Uploadimage.dart';
 import 'package:rewarding_kids/features/child/widgets/homeAppbar.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
 
-class UbloadImageView extends StatelessWidget {
-  const UbloadImageView({super.key, required this.Taskdetails, this.imagePath});
+class UploadImageView extends StatelessWidget {
+  const UploadImageView({super.key, required this.Taskdetails, this.imagePath});
   final TaskModel Taskdetails;
   final String? imagePath;
 
@@ -29,13 +32,13 @@ class UbloadImageView extends StatelessWidget {
                       if (context.canPop()) {
                         context.pop();
                       } else {
-                        context.go('/home_child');
+                        context.go('/Custombottomnav');
                       }
                     },
                   ),
                   SizedBox(width: 70.w),
                   CustomText(
-                    text: Taskdetails.TaskTitle,
+                    text: Taskdetails.titleEn,
                     iscenter: true,
                     size: 20.sp,
                     color: AppColors.titleColor,
@@ -45,13 +48,15 @@ class UbloadImageView extends StatelessWidget {
               ),
               SizedBox(height: 25.h),
               HomeAppbar(),
-              SizedBox(height: 30.h),
+              SizedBox(height: 20.h),
+
               Expanded(
                 child: Uploadimage(
                   Taskdetails: Taskdetails,
                   imagePath: imagePath,
                 ),
               ),
+              SizedBox(height: 30.h),
             ],
           ),
         ),

@@ -11,6 +11,7 @@ class Customtextformfiled extends StatefulWidget {
     required this.controller,
     required this.label,
     required this.icon,
+    this.validator,
   });
 
   final String hint;
@@ -19,6 +20,8 @@ class Customtextformfiled extends StatefulWidget {
   final IconData icon;
   final TextEditingController controller;
 
+  /// Optional validator
+  final String? Function(String?)? validator;
   @override
   State<Customtextformfiled> createState() => _CustomtextformfiledState();
 }
@@ -62,13 +65,17 @@ class _CustomtextformfiledState extends State<Customtextformfiled> {
               controller: widget.controller,
               cursorColor: AppColors.ActiveColor,
               obscureText: _obscureText,
-              validator: (v) {
-                if (v == null || v.isEmpty) {
-                  return 'please fill ${widget.label}';
-                }
-                return null;
-              },
+              validator:
+                  widget.validator ??
+                  (v) {
+                    if (v == null || v.isEmpty) {
+                      return 'please fill ${widget.label}';
+                    }
+                    return null;
+                  },
+
               decoration: InputDecoration(
+                errorText: null,
                 hintText: widget.hint,
                 hintStyle: TextStyle(
                   color: AppColors.descColor,
@@ -79,7 +86,26 @@ class _CustomtextformfiledState extends State<Customtextformfiled> {
                   color: AppColors.descColor,
                   size: 22.sp,
                 ),
-                suffix: widget.isPassword ? SizedBox( width:15.w , height: 15.h, child: GestureDetector( onTap: _togglePassword, child: Icon(Icons.remove_red_eye_outlined, size: 24.sp), ), ) : SizedBox( width:15.w , height: 15.h, ), filled: true, fillColor: Colors.white,
+                suffix: widget.isPassword
+                    ? Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20.h),
+                        child: SizedBox(
+                          width: 15.w,
+                          height: 15.h,
+                          child: GestureDetector(
+                            onTap: _togglePassword,
+                            child: Center(
+                              child: Icon(
+                                Icons.remove_red_eye_outlined,
+                                size: 24.sp,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : SizedBox(width: 15.w, height: 15.h),
+                filled: true,
+                fillColor: Colors.white,
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.r),
                   borderSide: BorderSide.none,
@@ -87,11 +113,14 @@ class _CustomtextformfiledState extends State<Customtextformfiled> {
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.r),
                   borderSide: const BorderSide(color: Colors.red),
+                  gapPadding: BorderSide.strokeAlignOutside,
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.r),
-                  borderSide:
-                      BorderSide(color: AppColors.ActiveColor, width: 1),
+                  borderSide: BorderSide(
+                    color: AppColors.ActiveColor,
+                    width: 1,
+                  ),
                 ),
               ),
             ),

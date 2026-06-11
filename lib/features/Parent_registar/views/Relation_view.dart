@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
+import 'package:rewarding_kids/features/Parent_registar/cubit/child_cubit.dart';
+import 'package:rewarding_kids/features/Parent_registar/cubit/child_state.dart';
 import 'package:rewarding_kids/features/Parent_registar/widgets/progress_bar.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
 import 'package:rewarding_kids/features/Parent_registar/widgets/relation_dropdown.dart';
@@ -33,15 +36,21 @@ class _RelationViewState extends State<RelationView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Popbutton(onPressed: () {
-                    context.go('/age');
-                  }),
+                  Popbutton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                  ),
                 ],
               ),
 
               SizedBox(height: size.height * 0.02),
 
-              AnimatedGradientProgress(progress: progress),
+              BlocBuilder<ChildRegistrationCubit, ChildRegistrationState>(
+                builder: (context, state) {
+                  return AnimatedGradientProgress(progress: state.progress);
+                },
+              ),
 
               SizedBox(height: size.height * 0.04),
 
@@ -55,7 +64,7 @@ class _RelationViewState extends State<RelationView> {
               SizedBox(height: size.height * 0.015),
               CustomText(
                 text:
-                'We will use this information to personalize the experience.',
+                    'We will use this information to personalize the experience.',
                 iscenter: true,
                 size: 14.sp,
                 color: AppColors.descColor,
@@ -69,6 +78,8 @@ class _RelationViewState extends State<RelationView> {
                     selectedRelation = value;
                     progress = 0.8;
                   });
+
+                  context.read<ChildRegistrationCubit>().setRelation(value!);
                 },
               ),
               SizedBox(height: size.height * 0.02),
@@ -83,7 +94,7 @@ class _RelationViewState extends State<RelationView> {
                       ),
                     );
                   } else {
-                    context.go('/avatar');
+                    context.push('/avatar');
                   }
                 },
               ),

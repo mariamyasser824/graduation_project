@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
-import 'package:rewarding_kids/features/child/data/task_model.dart';
+import 'package:rewarding_kids/features/child/data/models/task_model.dart';
 
 class Uploadimage extends StatefulWidget {
   const Uploadimage({
@@ -50,44 +50,52 @@ class _UploadimageState extends State<Uploadimage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          width: double.infinity,
-          height: MediaQuery.of(context).size.height * 0.65,
-          color: const Color(0xff3E3E3E),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              if (_image != null)
-                Image.file(_image!, fit: BoxFit.cover, width: double.infinity)
-              else
-                const Text(
-                  'No image selected',
-                  style: TextStyle(color: Colors.white),
-                ),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16.r),
+          child: Container(
+            width: double.infinity,
+            height: MediaQuery.of(context).size.height * 0.65,
 
-              /// زر إعادة التصوير
-              Positioned(
-                bottom: 20.h,
-                child: GestureDetector(
-                  onTap: retakePicture,
-                  child: Container(
-                    padding: EdgeInsets.all(12.w),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.black.withOpacity(0.6),
-                    ),
-                    child: Icon(
-                      Icons.camera_alt_outlined,
-                      color: Colors.white,
-                      size: 30.sp,
+            decoration: BoxDecoration(color: const Color(0xff3E3E3E)),
+            child: Stack(
+              // alignment: Alignment.center,
+              children: [
+                if (_image != null)
+                  Image.file(
+                    _image!,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.maxFinite,
+                  )
+                else
+                  const Text(
+                    'No image selected',
+                    style: TextStyle(color: Colors.white),
+                  ),
+
+                /// زر إعادة التصوير
+                Center(
+                  child: GestureDetector(
+                    onTap: retakePicture,
+                    child: Container(
+                      padding: EdgeInsets.all(12.w),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.transparent,
+                      ),
+                      child: Icon(
+                        Icons.camera_alt_outlined,
+                        color: Colors.white,
+                        size: 30.sp,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-        SizedBox(height: 20.h),
+        Spacer(),
 
         /// Upload
         Custombutton(
@@ -104,7 +112,6 @@ class _UploadimageState extends State<Uploadimage> {
                 },
           text: "Upload a photo",
         ),
-        SizedBox(height: 20.h),
       ],
     );
   }

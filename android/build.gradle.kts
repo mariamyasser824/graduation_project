@@ -2,10 +2,12 @@ import org.gradle.api.tasks.Delete
 import org.gradle.api.file.Directory
 
 allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
+   repositories {
+    google()
+    mavenCentral()
+    maven("https://jitpack.io")
+   }
+
 }
 
 /**
@@ -15,16 +17,20 @@ allprojects {
  */
 subprojects {
     afterEvaluate {
-        if (project.plugins.hasPlugin("com.android.application") ||
-            project.plugins.hasPlugin("com.android.library")
-        ) {
-            extensions.findByName("android")?.let { ext ->
-                val androidExt = ext as com.android.build.gradle.BaseExtension
-                androidExt.ndkVersion = "26.1.10909125"
+        extensions.findByName("android")?.let { ext ->
+
+            if (ext is com.android.build.gradle.AppExtension) {
+                ext.ndkVersion = "26.1.10909125"
             }
+
+            if (ext is com.android.build.gradle.LibraryExtension) {
+                ext.ndkVersion = "26.1.10909125"
+            }
+
         }
     }
 }
+
 
 // تغيير مكان build directory
 val newBuildDir: Directory =

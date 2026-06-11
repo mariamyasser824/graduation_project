@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
-import 'package:rewarding_kids/features/child/data/task_model.dart';
+import 'package:rewarding_kids/features/child/data/models/task_model.dart';
 
 class CameraInContainer extends StatefulWidget {
   const CameraInContainer({super.key, required this.Taskdetails});
@@ -46,7 +46,10 @@ class _CameraInContainerState extends State<CameraInContainer> {
         Container(
           width: double.infinity,
           height: MediaQuery.of(context).size.height * 0.65,
-          color: const Color(0xff3E3E3E),
+          decoration: BoxDecoration(
+            color: const Color(0xff3E3E3E),
+            borderRadius: BorderRadius.circular(16.r),
+          ),
           child: _image == null
               ? Center(
                   child: Icon(
@@ -55,7 +58,12 @@ class _CameraInContainerState extends State<CameraInContainer> {
                     size: 30.sp,
                   ),
                 )
-              : Image.file(_image!, fit: BoxFit.cover, width: double.infinity),
+              : Image.file(
+                  _image!,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.maxFinite,
+                ),
         ),
         SizedBox(height: 20.h),
         Custombutton(onPressed: takePicture, text: 'Take a photo'),

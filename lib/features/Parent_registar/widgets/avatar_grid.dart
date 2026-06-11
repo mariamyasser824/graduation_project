@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -31,12 +32,15 @@ class AvatarGrid extends StatelessWidget {
       itemBuilder: (context, index) {
         final isSelected = selectedAvatar == index;
 
-        // --------- آخر آيتم = زر إضافة صورة ---------
+        /// -------- زر إضافة صورة --------
         if (index == avatars.length - 1) {
           return GestureDetector(
             onTap: () async {
               final picker = ImagePicker();
-              final picked = await picker.pickImage(source: ImageSource.gallery,);
+
+              final picked = await picker.pickImage(
+                source: ImageSource.gallery,
+              );
 
               if (picked != null) {
                 onCustomImagePicked(picked.path);
@@ -50,28 +54,52 @@ class AvatarGrid extends StatelessWidget {
                   width: 2.w,
                 ),
               ),
-              child: SvgPicture.asset('assets/icons/add image.svg')
+              child: Center(
+                child: SvgPicture.asset(
+                  'assets/icons/add image.svg',
+                  width: 24.w,
+                ),
+              ),
             ),
           );
         }
 
-        // --------- آيتم الأفاتار العادي ---------
+        /// -------- الأفاتار العادي --------
         return GestureDetector(
           onTap: () => onAvatarSelected(index),
           child: Container(
             padding: EdgeInsets.all(4.w),
             decoration: BoxDecoration(
-              //shape: BoxShape.circle,
+              shape: BoxShape.circle,
               border: Border.all(
-                color: isSelected ? AppColors.ActiveColor : Colors.transparent,
+                color:
+                    isSelected ? AppColors.ActiveColor : Colors.transparent,
                 width: 3.w,
               ),
             ),
-            child: SvgPicture.asset(avatars[index]),
+            child: ClipOval(
+              child: _buildAvatar(avatars[index]),
+            ),
           ),
         );
       },
     );
   }
+
+  /// تحديد نوع الصورة
+  Widget _buildAvatar(String path) {
+    /// لو SVG
+    if (path.endsWith(".svg")) {
+      return SvgPicture.asset(
+        path,
+        fit: BoxFit.cover,
+      );
+    }
+
+    /// لو صورة من الجاليري (png / jpg / jpeg)
+    return Image.file(
+      File(path),
+      fit: BoxFit.cover,
+    );
+  }
 }
-//flutter build apk --release --split-per-abi  cd E:\StudioProjects\graduation_project2

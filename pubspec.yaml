@@ -8,39 +8,32 @@ environment:
   sdk: ^3.9.2
 
 dependencies:
-
-  # Audio
   audioplayers: ^5.2.1
-
-  # UI & Layout
   cupertino_icons: ^1.0.8
+ 
+  dio: ^5.9.1
+  dotted_border: ^3.1.0
   equatable: ^2.0.5
+  file_picker: ^10.3.10
   flutter:
     sdk: flutter
   flutter_audio_waveforms: ^1.2.1+8
-
-  # State Management
   flutter_bloc: ^8.1.4
+  flutter_custom_clippers: ^2.1.0
   flutter_screenutil: ^5.9.0
   flutter_sound: ^9.2.13
   flutter_sound_platform_interface: ^9.2.13
   flutter_svg: ^2.2.1
-
-  # Routing
   go_router: ^14.0.2
-
-  # Optional (gscanKit if still needed)
   gscankit: ^1.0.3
+  http_parser: ^4.1.2
   image_cropper: ^8.0.2
-
-  # Image & Media
   image_picker: ^1.1.1
   permission_handler: ^11.3.0
   qr_flutter: ^4.1.0
-
-  # QR Scanner
-  # Reactive programming
+  record: ^6.2.0
   rxdart: ^0.28.0
+  shared_preferences: ^2.5.4
   smooth_page_indicator: ^1.1.0
   voice_message_package: ^2.2.1
 

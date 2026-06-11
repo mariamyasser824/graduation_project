@@ -34,7 +34,7 @@ class AddtaskAppar extends StatelessWidget {
                 if (context.canPop()) {
                   context.pop();
                 } else {
-                  context.go('/Layout');
+                  context.push('/Layout');
                 }
               },
             ),

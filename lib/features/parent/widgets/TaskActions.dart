@@ -15,7 +15,15 @@ class TaskActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AddTaskCubit, AddTaskState>(
+      buildWhen: (previous, current) =>
+          previous.selectedDate != current.selectedDate ||
+          previous.canAssign != current.canAssign,
       builder: (context, state) {
+        final dateController = TextEditingController(
+          text: state.selectedDate == null
+              ? ''
+              : '${state.selectedDate!.day}/${state.selectedDate!.month}/${state.selectedDate!.year}',
+        );
         return Padding(
           padding: EdgeInsets.symmetric(vertical: 8.h),
           child: Column(
@@ -49,13 +57,26 @@ class TaskActions extends StatelessWidget {
                       context.read<AddTaskCubit>().selectDate(date);
                     }
                   },
-                  controller: TextEditingController(
+                  /* controller: TextEditingController(
                     text: state.selectedDate == null
                         ? ''
                         : '${state.selectedDate!.day}/${state.selectedDate!.month}/${state.selectedDate!.year}',
-                  ),
+                  ),*/
                   decoration: InputDecoration(
-                    prefixIcon: SvgPicture.asset('assets\icons\timeline.svg'),
+                    prefixIcon: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 5.w),
+                      child: SvgPicture.asset(
+                        'assets/icons/timeline.svg',
+                        height: 30.h, // الحجم اللي عايزة
+                        width: 30.w,
+                      ),
+                    ),
+                    prefixIconConstraints: BoxConstraints(
+                      minHeight: 30.h,
+                      minWidth: 30.w,
+                      maxHeight: 30.h,
+                      maxWidth: 30.w,
+                    ),
 
                     hintText: 'Enter Due Date',
                     hintStyle: TextStyle(
@@ -83,7 +104,9 @@ class TaskActions extends StatelessWidget {
               /// Assign Button
               Custombutton(
                 onPressed: state.canAssign
-                    ? () => _showSuccessDialog(context)
+                    ? () async {
+                        await assignTaskWithDialog(context);
+                      }
                     : null,
                 text: 'Assign the task to the child',
               ),
@@ -95,49 +118,86 @@ class TaskActions extends StatelessWidget {
   }
 }
 
-void _showSuccessDialog(BuildContext context) {
+Future<void> assignTaskWithDialog(BuildContext context) async {
+  try {
+    final result = await context.read<AddTaskCubit>().assignTask();
+
+    if (result.succeeded) {
+      _showDialog(
+        context,
+        title: 'Task assigned Successfully!',
+        imagePath: 'assets/icons/done.png',
+      );
+    } else {
+      // لو السيرفر رجع خطأ
+      _showDialog(
+        context,
+        title: 'Error1',
+        message: result.message ?? 'An unknown error occurred',
+        imagePath: 'assets/icons/done.png',
+      );
+    }
+  } catch (e) {
+    // لو فيه مشكلة في request نفسها (مثلاً DioException)
+    _showDialog(
+      context,
+      title: 'Error2',
+      message: e.toString(),
+      imagePath: 'assets/icons/done.png',
+    );
+  }
+}
+
+void _showDialog(
+  BuildContext context, {
+  required String title,
+  String? message,
+  required String imagePath,
+}) {
   showDialog(
     context: context,
     barrierDismissible: false,
     builder: (_) {
       return AlertDialog(
-        actions: [
-          SizedBox(
-            height: 240.h,
-            width: 290.w,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Center(
-                  child: SizedBox(
-                    height: 100.h,
-                    width: 100.w,
-                    child: Image.asset('assets/icons/done.png'),
-                  ),
-                ),
+        content: SizedBox(
+          height: 240.h,
+          width: 290.w,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 100.h,
+                width: 100.w,
+                child: Image.asset(imagePath),
+              ),
+              SizedBox(height: 10.h),
+              CustomText(
+                text: title,
+                iscenter: true,
+                size: 14.sp,
+                weight: FontWeight.w500,
+                color: AppColors.titleColor,
+              ),
+              if (message != null) ...[
                 SizedBox(height: 10.h),
                 CustomText(
-                  text: 'Task assigned Successfully!',
+                  text: message,
                   iscenter: true,
-                  size: 14.sp,
-                  weight: FontWeight.w500,
-                  color: AppColors.titleColor,
-                ),
-                SizedBox(height: 10.h),
-                Custombutton(
-                  onPressed: () {
-                    if (context.canPop()) {
-                      context.pop();
-                    } else {
-                      context.go('/addtask');
-                    }
-                  },
-                  text: 'Continue',
+                  size: 12.sp,
+                  weight: FontWeight.w400,
+                  color: AppColors.descColor,
                 ),
               ],
-            ),
+              SizedBox(height: 10.h),
+              Custombutton(
+                onPressed: () {
+                  if (context.canPop()) context.pop();
+                },
+                text: 'Continue',
+              ),
+            ],
           ),
-        ],
+        ),
       );
     },
   );

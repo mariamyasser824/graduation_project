@@ -4,21 +4,21 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
 
 class GiftCard extends StatelessWidget {
-  final String title;
-  final String imageUrl;
-  final int points;
-  final String buttonText;
-  final VoidCallback onPressed;
-  final BoxFit fit;
-
   const GiftCard({
     super.key,
     required this.title,
     required this.imageUrl,
     required this.points,
     required this.buttonText,
-    required this.onPressed, required this.fit,
+    required this.onPressed,
+    required this.fit,
   });
+  final String title;
+  final String imageUrl;
+  final int points;
+  final String buttonText;
+  final VoidCallback? onPressed;
+  final BoxFit fit;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class GiftCard extends StatelessWidget {
             width: double.infinity,
             child: ClipRRect(
               borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-              child: Image.asset(imageUrl, fit: fit),
+              child: Image.network(imageUrl, fit: fit),
             ),
           ),
 
@@ -66,7 +66,7 @@ class GiftCard extends StatelessWidget {
                       iscenter: true,
                     ),
                   ),
-  SizedBox(height: 20.h),
+                  SizedBox(height: 20.h),
 
                   /// 🎯 Target & Points
                   Row(
@@ -117,10 +117,10 @@ class GiftCard extends StatelessWidget {
                     width: double.infinity,
                     height: 32.h,
                     child: GestureDetector(
-                      onTap: onPressed,
+                      onTap: onPressed ?? () {},
                       child: Container(
-                          width: 150.w,
-                    height: 32.h,
+                        width: 150.w,
+                        height: 32.h,
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
                             colors: [Color(0xffF68EC2), Color(0xffA077F1)],

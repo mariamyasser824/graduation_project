@@ -37,6 +37,7 @@ class TasksBody extends StatelessWidget {
                       onTap: () {
                         context.read<TasksViewCubit>().showAddTask();
                       },
+                      text: 'Add Task',
                     ),
                     SvgPicture.asset(
                       "assets/icons/notification.svg",

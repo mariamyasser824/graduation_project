@@ -2,19 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'dart:convert';
 
 import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
+import 'package:rewarding_kids/features/Parent_registar/data/childmodel.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AccountDoneView extends StatelessWidget {
-  const AccountDoneView({super.key});
+  AccountDoneView({super.key, Object? extra});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final child = GoRouterState.of(context).extra as ChildModel;
+    print("Registration code: ${child.name}");
 
     return Scaffold(
       backgroundColor: AppColors.Background,
@@ -30,12 +35,14 @@ class AccountDoneView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Popbutton(onPressed: () {
-                    context.go('/avatar');
-                  }),
+                  Popbutton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                  ),
                 ],
-              ),SizedBox(height: size.height * 0.15),
-
+              ),
+              SizedBox(height: size.height * 0.15),
 
               // الصورة
               Center(
@@ -46,7 +53,7 @@ class AccountDoneView extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: size.height *0.02),
+              SizedBox(height: size.height * 0.02),
 
               // العنوان
               CustomText(
@@ -57,23 +64,44 @@ class AccountDoneView extends StatelessWidget {
                 weight: FontWeight.w500,
               ),
 
-              SizedBox(height: size.height *0.02),
-                
+              SizedBox(height: size.height * 0.02),
 
-          // QR Code
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w,vertical: 12.h),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12.r),
-            //  color: Colors.grey.shade200,
-            ),
-            child: SvgPicture.asset(
-              "assets/icons/qrcode.svg",
-              height: size.height*0.17,
-              width: size.width*0.46,
-            ),
-          ),
-SizedBox(height: size.height *0.02),
+              // QR Code
+              // QR Code
+              Center(
+                child: SizedBox(
+                  height: size.height * 0.25,
+                  width: size.height * 0.25,
+                  child: child.qrCodeBase64.isNotEmpty
+                      ? QrImageView(
+                          data: child.registrationCode,
+                          version: QrVersions.auto,
+                          size: size.height * 0.15,
+                          foregroundColor:
+                              AppColors.ActiveColor, // لون خطوط الـ QR
+                          backgroundColor: Colors.transparent, // خلفية QR
+                        )
+                      : SvgPicture.asset(
+                          'assets/icons/qrcode.svg',
+                          height: 150,
+                          fit: BoxFit.contain,
+                        ),
+                ),
+              ),
+              /*
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: SvgPicture.asset(
+                  'assets/icons/qrcode.svg',
+                  height: 150,
+                  fit: BoxFit.contain,
+                ),
+              ),*/
+              // placeholder
+              SizedBox(height: size.height * 0.02),
               // كود الطفل
               Column(
                 children: [
@@ -87,26 +115,32 @@ SizedBox(height: size.height *0.02),
                         size: 16.sp,
                         weight: FontWeight.w400,
                       ),
-                    SizedBox(width: 10.w,),
-                    Text(
-"94558932", style: TextStyle(
-    decoration: TextDecoration.underline,
-    color:AppColors.titleColor,fontSize: 16.sp,fontWeight: FontWeight.w400,
-  ),
+                      SizedBox(width: 10.w),
+                      Text(
+                        child.registrationCode.isNotEmpty
+                            ? child.registrationCode
+                            : 'No Code',
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          color: AppColors.titleColor,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
-                      GestureDetector(
-                        onTap: ()  {
-    Clipboard.setData(
-      const ClipboardData(text: "94558932"),
-    );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Child code copied"),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  },
+                      GestureDetector(
+                        onTap: () {
+                          Clipboard.setData(
+                            ClipboardData(text: child.registrationCode),
+                          );
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Child code copied"),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: SvgPicture.asset(
@@ -129,7 +163,7 @@ SizedBox(height: size.height *0.02),
                 ],
               ),
 
-      Spacer(flex: 1,),
+              Spacer(flex: 1),
 
               Custombutton(
                 text: "Continue",

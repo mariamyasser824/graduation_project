@@ -7,12 +7,18 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
-import 'package:go_router/go_router.dart';
-import 'package:rewarding_kids/features/child/data/task_model.dart';
+import 'package:rewarding_kids/features/child/data/models/task_model.dart';
+import 'package:rewarding_kids/features/child/cubit/SubmitTaskCubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SimpleRecorder extends StatefulWidget {
-  const SimpleRecorder({super.key, required this.Taskdetails});
+  const SimpleRecorder({
+    super.key,
+    required this.Taskdetails,
+    required this.onSubmit,
+  });
   final TaskModel Taskdetails;
+  final Function(String path) onSubmit;
 
   @override
   State<SimpleRecorder> createState() => _SimpleRecorderState();
@@ -52,7 +58,10 @@ class _SimpleRecorderState extends State<SimpleRecorder>
     }
 
     await _recorder.openRecorder();
-    setState(() => isRecorderReady = true);
+    await _player.openPlayer();
+
+    isRecorderReady = true;
+    setState(() {});
   }
 
   Future<void> startRecording() async {
@@ -66,7 +75,6 @@ class _SimpleRecorderState extends State<SimpleRecorder>
       toFile: recordedFilePath,
       codec: Codec.aacADTS,
     );
-
     _pulseController.repeat(reverse: true);
     setState(() {});
   }
@@ -117,37 +125,10 @@ class _SimpleRecorderState extends State<SimpleRecorder>
     setState(() {});
   }
 
-  void submitRecording() async {
-    try {
-      // لو التسجيل شغال، وقفوه وانتظري
-      if (_recorder.isRecording) {
-        await _recorder.stopRecorder();
-      }
+  Future<void> submitVoice() async {
+    if (recordedFilePath == null) return;
 
-      // لو فيه player شغال، وقفوه وانتظري
-      if (_player.isPlaying) {
-        await _player.stopPlayer();
-      }
-
-      // اتأكدي من وجود الملف
-      if (recordedFilePath == null || !File(recordedFilePath!).existsSync()) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please record audio first')),
-        );
-        return;
-      }
-
-      // الانتقال للصفحة التالية بعد التأكد من كل حاجة
-      GoRouter.of(context).push(
-        '/record_completed',
-        extra: {"task": widget.Taskdetails, "audio_path": recordedFilePath},
-      );
-    } catch (e) {
-      print("Error during submitRecording: $e");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
-    }
+    widget.onSubmit(recordedFilePath!); // ✅ رجعنا الباث
   }
 
   @override
@@ -236,7 +217,7 @@ class _SimpleRecorderState extends State<SimpleRecorder>
         ),
 
         Spacer(),
-        Custombutton(text: "Submit Audio", onPressed: submitRecording),
+        Custombutton(text: "Submit Audio", onPressed: submitVoice),
       ],
     );
   }

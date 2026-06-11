@@ -30,15 +30,16 @@ class Nextbutton extends StatelessWidget {
             Container(
               width: size,
               height: size,
+              margin: EdgeInsets.all(4.w),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 6.r,
                     offset: Offset(0, 3.h),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -47,14 +48,14 @@ class Nextbutton extends StatelessWidget {
               height: size + 6.h,
               child: CircularProgressIndicator(
                 value: progress,
-                strokeWidth: 4.w,
-              //  backgroundColor: Colors.grey.shade200,
+                strokeWidth: 2.w,
+                //  backgroundColor: Colors.grey.shade200,
                 color: Color(0xffA490AF),
               ),
             ),
             Icon(
               Icons.keyboard_arrow_right_outlined,
-              color: AppColors.ActiveColor,
+              color: Color(0xff7B6C83),
               size: 28.sp,
             ),
           ],

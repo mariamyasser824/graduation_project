@@ -5,8 +5,9 @@ import 'package:rewarding_kids/Shared/CustomText.dart';
 
 class AddTaskButton extends StatelessWidget {
   final VoidCallback onTap;
+  final String text;
 
-  const AddTaskButton({super.key, required this.onTap});
+  const AddTaskButton({super.key, required this.onTap, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +36,19 @@ class AddTaskButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-          SvgPicture.asset("assets/icons/addtask.svg", height: 24.h, width: 24.w,),
+            SvgPicture.asset(
+              "assets/icons/addtask.svg",
+              height: 24.h,
+              width: 24.w,
+            ),
             SizedBox(width: 4),
-            CustomText(text: "Add Task", iscenter: true, size: 12.sp, color: Colors.white, weight: FontWeight.w500,),
+            CustomText(
+              text: text,
+              iscenter: true,
+              size: 12.sp,
+              color: Colors.white,
+              weight: FontWeight.w500,
+            ),
           ],
         ),
       ),
