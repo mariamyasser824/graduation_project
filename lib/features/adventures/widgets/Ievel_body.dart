@@ -2,31 +2,63 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rewarding_kids/features/adventures/models/adventure_details_model.dart';
 import 'package:rewarding_kids/features/adventures/models/level_model.dart';
 import 'package:rewarding_kids/features/adventures/widgets/level_circle.dart';
 import 'package:rewarding_kids/features/adventures/widgets/target_card.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
 
-List<LevelModel> levels = [
-  LevelModel(number: 1, state: LevelState.completed, stars: 3),
-  LevelModel(number: 2, state: LevelState.completed, stars: 2),
-  LevelModel(number: 3, state: LevelState.inProgress, stars: 0),
-  LevelModel(number: 4, state: LevelState.unlocked, stars: 0),
-  LevelModel(number: 5, state: LevelState.locked, stars: 0),
-  LevelModel(number: 6, state: LevelState.locked, stars: 0),
-  LevelModel(number: 7, state: LevelState.locked, stars: 0),
-];
-
 class LevelBody extends StatelessWidget {
-  const LevelBody({super.key});
+  final AdventureDetailsModel details;
+
+  const LevelBody({super.key, required this.details});
+
+  List<LevelModel> mapTasksToLevels() {
+    return details.tasks.map((task) {
+      LevelState state;
+
+      switch (task.accessStatus) {
+        case "Locked":
+          state = LevelState.locked;
+          break;
+        case "Unlocked":
+          state = LevelState.unlocked;
+          break;
+        case "Done":
+          state = LevelState.completed;
+          break;
+        default:
+          state = LevelState.locked;
+      }
+
+      return LevelModel(
+        number: task.dayNumber ?? 0,
+        state: state,
+        stars: task.earnedStars ?? 0,
+      );
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final levels = mapTasksToLevels();
+
+    /// positions بتتكرر لو الليفلات أكتر
+    final positions = [
+      Offset(0.55, 0.75),
+      Offset(0.30, 0.70),
+      Offset(0.78, 0.55),
+      Offset(0.60, 0.48),
+      Offset(0.25, 0.55),
+      Offset(0.35, 0.40),
+      Offset(0.80, 0.28),
+    ];
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return Stack(
           children: [
-            /// 🌑 Background (Grayscale)
+            /// 🌑 Background
             ColorFiltered(
               colorFilter: const ColorFilter.matrix([
                 0.2126,
@@ -58,8 +90,7 @@ class LevelBody extends StatelessWidget {
               ),
             ),
 
-            /// overlay خفيف
-            Container(color: Color(0xff857B8D).withOpacity(0.1)),
+            Container(color: const Color(0xff857B8D).withOpacity(0.1)),
 
             /// 🛤️ Paths
             Positioned(
@@ -84,7 +115,10 @@ class LevelBody extends StatelessWidget {
             Positioned(
               top: constraints.maxHeight * 0.87,
               left: constraints.maxWidth * 0.07,
-              child: TargetCard(currentLevel: 2, totalLevels: 7),
+              child: TargetCard(
+                currentLevel: details.currentDay ?? 1,
+                totalLevels: details.totalDays ?? levels.length,
+              ),
             ),
 
             /// 🎁 Gift
@@ -104,60 +138,29 @@ class LevelBody extends StatelessWidget {
               ),
             ),
 
-            /// 🔥 Levels
-            Positioned(
-              top: constraints.maxHeight * 0.75,
-              left: constraints.maxWidth * 0.55,
-              child: LevelCircle(
-                level: levels[0],
-                onTap: () => context.push('/intro_level'),
-              ),
-            ),
+            /// 🔥 Levels Dynamic
+            ...levels.asMap().entries.map((entry) {
+              int index = entry.key;
+              LevelModel level = entry.value;
 
-            Positioned(
-              top: constraints.maxHeight * 0.70,
-              left: constraints.maxWidth * 0.30,
-              child: LevelCircle(
-                level: levels[1],
-                onTap: () => context.push('/intro_level'),
-              ),
-            ),
+              final pos = positions[index % positions.length];
 
-            Positioned(
-              top: constraints.maxHeight * 0.55,
-              left: constraints.maxWidth * 0.78,
-              child: LevelCircle(
-                level: levels[2],
-                onTap: () => context.push('/intro_level'),
-              ),
-            ),
-
-            Positioned(
-              top: constraints.maxHeight * 0.48,
-              left: constraints.maxWidth * 0.60,
-              child: LevelCircle(
-                level: levels[3],
-                onTap: () => context.push('/intro_level'),
-              ),
-            ),
-
-            Positioned(
-              top: constraints.maxHeight * 0.55,
-              left: constraints.maxWidth * 0.25,
-              child: LevelCircle(level: levels[4], onTap: () {}),
-            ),
-
-            Positioned(
-              top: constraints.maxHeight * 0.40,
-              left: constraints.maxWidth * 0.35,
-              child: LevelCircle(level: levels[5], onTap: () {}),
-            ),
-
-            Positioned(
-              top: constraints.maxHeight * 0.28,
-              left: constraints.maxWidth * 0.80,
-              child: LevelCircle(level: levels[6], onTap: () {}),
-            ),
+              return Positioned(
+                top: constraints.maxHeight * pos.dy,
+                left: constraints.maxWidth * pos.dx,
+                child: LevelCircle(
+                  level: level,
+                  onTap: level.state == LevelState.locked
+                      ? null
+                      : () {
+                          context.push(
+                            '/intro_level',
+                            extra: details.tasks[index],
+                          );
+                        },
+                ),
+              );
+            }).toList(),
 
             /// 🧠 Header
             Column(
@@ -179,16 +182,17 @@ class LevelBody extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.symmetric(
                         vertical: 16.h,
-                        horizontal: 50.w,
+                        horizontal: 30.w,
                       ),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           ShaderMask(
-                            shaderCallback: (bounds) => LinearGradient(
+                            shaderCallback: (bounds) => const LinearGradient(
                               colors: [Color(0xff87205C), Color(0xff350C25)],
                             ).createShader(bounds),
                             child: Text(
-                              "Adventure Name",
+                              details.titleEn ?? "Adventure",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 20.sp,
@@ -203,10 +207,10 @@ class LevelBody extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                "Day 6 of 7 . ",
+                                "Day ${details.currentDay ?? 1} of ${details.totalDays ?? levels.length} . ",
                                 style: TextStyle(
                                   fontSize: 14.sp,
-                                  color: Color(0xff483F4D),
+                                  color: const Color(0xff483F4D),
                                 ),
                               ),
                               Container(
@@ -215,15 +219,17 @@ class LevelBody extends StatelessWidget {
                                   vertical: 2.h,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Color(0xff87205C).withOpacity(0.2),
+                                  color: const Color(
+                                    0xff87205C,
+                                  ).withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  "Almost there!💪",
+                                  "Keep going 💪",
                                   style: TextStyle(
                                     fontSize: 14.sp,
                                     fontWeight: FontWeight.w500,
-                                    color: Color(0xff483F4D),
+                                    color: const Color(0xff483F4D),
                                   ),
                                 ),
                               ),

@@ -80,7 +80,12 @@ class AdventureDetailsModel {
       isCompleted: json['isCompleted'] ?? false,
 
       tasks: (json['tasks'] as List)
-          .map((e) => AdvTaskModel.fromJson(e))
+          .map(
+            (e) => AdvTaskModel.fromJson(
+              e,
+              weeklyAdventureId: json['weeklyAdventureId'],
+            ),
+          )
           .toList(),
     );
   }

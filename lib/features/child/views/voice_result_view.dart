@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
+import 'package:rewarding_kids/features/child/cubit/SubmitTaskCubit.dart';
 import 'package:rewarding_kids/features/child/data/models/SubmitTaskResponseModel.dart';
 import 'package:rewarding_kids/features/child/data/models/task_model.dart';
 import 'package:rewarding_kids/features/child/widgets/RecordedVoiceBubble.dart';
@@ -11,15 +12,17 @@ import 'package:rewarding_kids/features/child/widgets/homeAppbar.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
 
 class VoiceResultView extends StatefulWidget {
-  final TaskModel task;
+  final dynamic task;
   final String audioPath;
   final SubmitTaskResponse response;
+  final SubmitType type;
 
   const VoiceResultView({
     super.key,
     required this.task,
     required this.audioPath,
     required this.response,
+    required this.type,
   });
 
   @override
@@ -138,17 +141,31 @@ class _VoiceResultViewState extends State<VoiceResultView> {
                 text: success ? "Submit" : "Try Again",
                 onPressed: () {
                   if (success) {
+                    if (widget.type == SubmitType.normal) {
+                      context.push(
+                        '/record_completed',
+                        extra: {
+                          "task": widget.task,
+                          "audio_path": widget.audioPath,
+                        },
+                      );
+                    } else {
+                      context.push('/adv_celepration'); // 🔥 هنا الفرق
+                    }
+                  } else {
                     context.push(
-                      '/record_completed',
+                      '/record_task',
                       extra: {
                         "task": widget.task,
-                        "audio_path": widget.audioPath,
+                        "type": widget.type,
+                        "adventureTaskId": widget.type == SubmitType.adventure
+                            ? widget.task.adventureTaskId
+                            : null,
+                        "weeklyAdventureId": widget.type == SubmitType.adventure
+                            ? widget.task.weeklyAdventureId
+                            : null,
                       },
                     );
-                  } else {
-                    GoRouter.of(
-                      context,
-                    ).push('/record_task', extra: widget.task);
                   }
                 },
               ),

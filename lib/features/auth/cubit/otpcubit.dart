@@ -11,22 +11,25 @@ class OtpCubit extends Cubit<OtpState> {
 
   Future<void> verifyOtp({required String email, required String otp}) async {
     emit(OtpLoading());
-    final response = await _authService.verifyOtp(email: email, otp: otp);
-    if (response is ApiError) {
-      emit(OtpError(response.message));
-      return;
-    }
+    try {
+      final response = await _authService.verifyOtp(email: email, otp: otp);
 
-    final data = Map<String, dynamic>.from(response);
+      if (response is ApiError) {
+        emit(OtpError(response.message));
+        return;
+      }
 
-    debugPrint('🟢 SUCCEEDED => ${data["succeeded"]}');
-
-    if (response["succeeded"] == true) {
-      debugPrint("🔥 SUCCESS BEFORE EMIT");
-      emit(OtpSuccess(message: response["message"]));
-      debugPrint("🔥 SUCCESS AFTER EMIT");
-    } else {
-      emit(OtpError(data["message"] ?? "OTP verification failed"));
+      if (response is Map<String, dynamic>) {
+        if (response["succeeded"] == true) {
+          emit(OtpSuccess(message: response["message"] ?? "Verified"));
+        } else {
+          emit(OtpError(response["message"] ?? "OTP verification failed"));
+        }
+      } else {
+        emit(OtpError("Unexpected response"));
+      }
+    } catch (e) {
+      emit(OtpError(e.toString()));
     }
   }
 
@@ -35,10 +38,14 @@ class OtpCubit extends Cubit<OtpState> {
     String? userId,
     required String flow,
   }) async {
-    if (flow == "reset") {
-      await _authService.forgotPassword(email: email);
-    } else {
-      await _authService.resendOtp(email: email, flow: flow);
+    try {
+      if (flow == "reset") {
+        await _authService.forgotPassword(email: email);
+      } else {
+        await _authService.resendOtp(email: email, flow: flow);
+      }
+    } catch (e) {
+      debugPrint('resend error: $e');
     }
   }
 }

@@ -104,11 +104,11 @@ class _Otp1ViewState extends State<Otp1View> {
     }
 
     if (widget.flow == "activate") {
-      // Register Flow
+      // Signup flow - بيتحقق من الـ OTP عشان يفعّل الأكاونت
       context.read<OtpCubit>().verifyOtp(email: widget.email, otp: code);
-      // context.push('/child_flow');
     } else if (widget.flow == "reset") {
-      // Forgot Password Flow
+      // Reset flow - الـ OTP بيتبعت مع الـ reset-password مباشرة
+      // مش محتاج verify هنا
       context.push(
         '/resetpass1',
         extra: {"email": widget.email, "userId": widget.userId, "otp": code},
@@ -141,16 +141,19 @@ class _Otp1ViewState extends State<Otp1View> {
           Navigator.of(context, rootNavigator: true).pop();
         }
         if (state is OtpSuccess) {
-          Navigator.pop(context);
-
           if (widget.flow == "activate") {
-            // Register Flow
-
-            context.go('/login');
+            context.push('/login');
+          } else if (widget.flow == "reset") {
+            // 👈 دلوقتي بس نروح reset بعد ما الـ OTP اتتحقق
+            context.push(
+              '/resetpass1',
+              extra: {
+                "email": widget.email,
+                "userId": widget.userId,
+                "otp": code, // الكود الصح
+              },
+            );
           }
-          /*else {
-            context.go('/login');
-          }*/
         }
 
         if (state is OtpError) {
@@ -185,12 +188,12 @@ class _Otp1ViewState extends State<Otp1View> {
                     ],
                   ),
 
-                  SizedBox(height: 30.h),
+                  SizedBox(height: 80.h),
                   Center(
-                    child: SvgPicture.asset(
-                      'assets/icons/email.svg',
-                      width: 56.w,
-                      height: 56.h,
+                    child: Image.asset(
+                      'assets/icons/emaiil.png',
+                      width: 30.w,
+                      height: 40.h,
                     ),
                   ),
                   SizedBox(height: 20.h),
@@ -201,7 +204,7 @@ class _Otp1ViewState extends State<Otp1View> {
                     weight: FontWeight.w600,
                     size: 18.sp,
                   ),
-                  SizedBox(height: 10.h),
+                  SizedBox(height: 20.h),
                   CustomText(
                     text: 'Enter verification code sent to',
                     iscenter: true,
@@ -212,7 +215,7 @@ class _Otp1ViewState extends State<Otp1View> {
                   CustomText(
                     text: '${widget.email}',
                     iscenter: true,
-                    color: AppColors.descColor,
+                    color: Color(0xffA490AF),
                     weight: FontWeight.w400,
                     size: 14.sp,
                   ),

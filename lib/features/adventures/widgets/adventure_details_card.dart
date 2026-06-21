@@ -7,13 +7,53 @@ import 'package:rewarding_kids/features/adventures/widgets/How%20_it_works.dart'
 import 'package:rewarding_kids/features/adventures/widgets/adventure_description.dart';
 import 'package:rewarding_kids/features/adventures/widgets/adventure_title_row.dart';
 import 'package:rewarding_kids/features/adventures/widgets/start_adventure_button.dart';
+import 'package:just_audio/just_audio.dart';
 
-class AdventureDetailsCard extends StatelessWidget {
+class AdventureDetailsCard extends StatefulWidget {
   final AdventureDetailsModel details;
 
   const AdventureDetailsCard({super.key, required this.details});
+
+  @override
+  State createState() => _AdventureDetailsCardState();
+}
+
+class _AdventureDetailsCardState extends State<AdventureDetailsCard> {
+  final AudioPlayer _player = AudioPlayer();
+  bool isPlaying = false;
+
+  Future playAudio() async {
+    try {
+      if (widget.details.descriptionVoiceUrl == null) return;
+
+      await _player.setUrl(widget.details.descriptionVoiceUrl!);
+      await _player.play();
+
+      setState(() {
+        isPlaying = true;
+      });
+
+      _player.playerStateStream.listen((state) {
+        if (state.processingState == ProcessingState.completed) {
+          setState(() {
+            isPlaying = false;
+          });
+        }
+      });
+    } catch (e) {
+      print("Audio Error: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final details = widget.details;
     return Stack(
       children: [
         /// 🔥 الكارد بالـ curve + notch
@@ -43,19 +83,20 @@ class AdventureDetailsCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  AdventureTitleRow(title: details.titleEn),
+                  AdventureTitleRow(title: widget.details.titleEn),
                   const SizedBox(height: 15),
 
-                  AdventureDescription(description: details.descriptionEn),
+                  AdventureDescription(
+                    description: widget.details.descriptionEn,
+                  ),
                   const Spacer(),
                   const HowItWorksRow(),
                   const Spacer(),
                   StartAdventureButton(
                     onTap: () {
-                      
                       context.push(
                         '/adv_levels',
-                        extra: details.weeklyAdventureId,
+                        extra: widget.details.weeklyAdventureId,
                       );
                     },
                     text: "Start Adventure",
@@ -66,28 +107,22 @@ class AdventureDetailsCard extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: 316.h,
-          left: 275.w,
-
-          child: Container(
-            height: 50.h,
-            width: 50.w,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-
-              color: Color(0xffF7F1FF),
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0xffC9BFDB).withOpacity(0.40),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Icon(
-              Icons.play_arrow,
-              size: 30.sp,
-              color: Color(0xff6550A4),
+          top: 316,
+          left: 275,
+          child: GestureDetector(
+            onTap: playAudio,
+            child: Container(
+              height: 50,
+              width: 50,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0xffF7F1FF),
+              ),
+              child: Icon(
+                isPlaying ? Icons.pause : Icons.play_arrow,
+                size: 30,
+                color: Color(0xff6550A4),
+              ),
             ),
           ),
         ),

@@ -7,6 +7,7 @@ import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
 import 'package:rewarding_kids/Shared/Customtextformfiled.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
+import 'package:rewarding_kids/core/utils/dialog_helper.dart';
 import 'package:rewarding_kids/features/auth/cubit/forget_password_cubit.dart';
 import 'package:rewarding_kids/features/auth/cubit/forget_password_state.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
@@ -28,18 +29,13 @@ class ForgetpassView extends StatelessWidget {
     return BlocListener<ForgetPasswordCubit, ForgetPasswordState>(
       listener: (context, state) {
         if (state is ForgetPasswordLoading) {
-          showDialog(
-            context: context,
-            builder: (_) => const Center(child: CircularProgressIndicator()),
-          );
+          DialogHelper.showLoading(context);
         } else {
-          // نغلق الـ Loading لأي حالة مش Loading
-          Navigator.of(context, rootNavigator: true).pop();
+          DialogHelper.hideLoading(context); // آمن دايماً
         }
 
         if (state is ForgetPasswordSuccess) {
-          Navigator.pop(context);
-
+          // مش محتاج pop تاني - hideLoading عملها
           context.push(
             '/otp1',
             extra: {
@@ -51,7 +47,6 @@ class ForgetpassView extends StatelessWidget {
         }
 
         if (state is ForgetPasswordError) {
-          Navigator.pop(context);
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(state.error)));
@@ -73,16 +68,20 @@ class ForgetpassView extends StatelessWidget {
                       children: [
                         Popbutton(
                           onPressed: () {
-                            context.pop();
+                            if (context.canPop()) {
+                              context.pop();
+                            } else {
+                              context.go('/getstarted');
+                            }
                           },
                         ),
                       ],
                     ),
-                    SizedBox(height: 40.h),
-                    SvgPicture.asset(
-                      'assets/icons/lock.svg',
-                      width: 60.w,
-                      height: 60.w,
+                    SizedBox(height: 80.h),
+                    Image.asset(
+                      'assets/icons/lock.png',
+                      width: 30.w,
+                      height: 40.w,
                     ),
                     SizedBox(height: 25.h),
                     CustomText(

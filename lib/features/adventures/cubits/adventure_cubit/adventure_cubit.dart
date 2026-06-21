@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rewarding_kids/features/adventures/cubits/adventure_cubit/adventure_state.dart';
+import 'package:rewarding_kids/features/adventures/models/adv_task_model.dart';
 import 'package:rewarding_kids/features/adventures/repos/adventure_repo.dart';
 
 class AdventureCubit extends Cubit<AdventureState> {
@@ -30,4 +33,22 @@ class AdventureCubit extends Cubit<AdventureState> {
       emit(AdventureDetailsError(e.toString()));
     }
   }
+   Future<void> submitTask({
+  required AdvTaskModel task,
+  File? voiceFile,
+  File? imageFile,
+}) async {
+  try {
+    await repo.submitTask(
+      adventureTaskId: task.adventureTaskId,
+      weeklyAdventureId: task.weeklyAdventureId,
+      voiceFile: voiceFile,
+      imageFile: imageFile,
+    );
+
+    print("Submitted ✅");
+  } catch (e) {
+    print("Error: $e");
+  }
+}
 }

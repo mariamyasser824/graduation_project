@@ -15,11 +15,17 @@ class UserTypeTabs extends StatefulWidget {
 class _UserTypeTabsState extends State<UserTypeTabs>
     with SingleTickerProviderStateMixin {
   late TabController controller;
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
     controller = TabController(length: 2, vsync: this);
+    controller.addListener(() {
+      if (!controller.indexIsChanging) {
+        setState(() => _currentIndex = controller.index);
+      }
+    });
   }
 
   @override
@@ -35,25 +41,86 @@ class _UserTypeTabsState extends State<UserTypeTabs>
       children: [
         // ------- TAB BAR -------
         Container(
+          height: 47.h,
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: TabBar(
-            controller: controller,
-            indicator: BoxDecoration(
-              color: AppColors.ActiveColor,
-              borderRadius: BorderRadius.circular(8.r),
-            ),
-            labelColor: Colors.white,
-            unselectedLabelColor: AppColors.titleColor,
-            indicatorSize: TabBarIndicatorSize.tab,
-            tabs: [
-              Tab(
-                child: Text("Parent", style: TextStyle(fontSize: 14.sp)),
+            color: Color(0xffF8F4FA),
+            borderRadius: BorderRadius.circular(10.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
-              Tab(
-                child: Text("Child", style: TextStyle(fontSize: 14.sp)),
+            ],
+          ),
+          child: Row(
+            children: [
+              // Parent Tab
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    controller.animateTo(0);
+                    setState(() => _currentIndex = 0);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      color: _currentIndex == 0
+                          ? AppColors.ActiveColor
+                          : Color(0xffF8F4FA),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10.r),
+                        bottomLeft: Radius.circular(10.r),
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Parent",
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          color: _currentIndex == 0
+                              ? Color(0xffFAF8FB)
+                              : AppColors.titleColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Child Tab
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    controller.animateTo(1);
+                    setState(() => _currentIndex = 1);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      color: _currentIndex == 1
+                          ? AppColors.ActiveColor
+                          : Color(0xffF8F4FA),
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(10.r),
+                        bottomRight: Radius.circular(10.r),
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Child",
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          color: _currentIndex == 1
+                              ? Color(0xffFAF8FB)
+                              : AppColors.titleColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

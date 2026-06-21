@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
+import 'package:rewarding_kids/features/child/cubit/SubmitTaskCubit.dart';
 import 'package:rewarding_kids/features/child/data/models/task_model.dart';
 
 class Uploadimage extends StatefulWidget {
@@ -11,10 +12,16 @@ class Uploadimage extends StatefulWidget {
     super.key,
     required this.Taskdetails,
     required this.imagePath,
+    required this.type,
+    this.adventureTaskId,
+    this.weeklyAdventureId,
   });
-
-  final TaskModel Taskdetails;
+  final SubmitType type;
+  final dynamic Taskdetails;
   final String? imagePath;
+
+  final String? adventureTaskId;
+  final String? weeklyAdventureId;
 
   @override
   State<Uploadimage> createState() => _UploadimageState();
@@ -107,6 +114,9 @@ class _UploadimageState extends State<Uploadimage> {
                     extra: {
                       'task': widget.Taskdetails,
                       'image_path': _image!.path,
+                      'type': widget.type,
+                      'adventureTaskId': widget.adventureTaskId,
+                      'weeklyAdventureId': widget.weeklyAdventureId, // 🔥
                     },
                   );
                 },

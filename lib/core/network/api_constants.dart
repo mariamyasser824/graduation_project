@@ -16,7 +16,7 @@ class ApiConstants {
   static const String getTasks = "$baseUrl/api/Child";
   static const String getChildPoints = "$baseUrl/api/Child/points";
   static String submitTask(String taskId) =>
-      "$baseUrl/api/Child/$taskId/submit";
+      '$baseUrl/api/Child/submit/$taskId';
 
   /// 🔥 Add Task Flow
   static const String getCategories = "$baseUrl/api/Category";
@@ -57,6 +57,10 @@ class ApiConstants {
   static String getAdventureDetails(String weeklyAdventureId) =>
       "$baseUrl/api/ChildAdventure/$weeklyAdventureId";
 
- // static String getAdventureTasks(String weeklyAdventureId) =>
-    //  "$baseUrl/api/ChildAdventure/weekly-adventures/$weeklyAdventureId/tasks";
+  // static String getAdventureTasks(String weeklyAdventureId) =>
+  //
+  // "$baseUrl/api/ChildAdventure/weekly-adventures/$weeklyAdventureId/tasks";
+
+  static const String submitAdventureTask =
+      "$baseUrl/api/ChildAdventure/adventure-tasks/submit";
 }

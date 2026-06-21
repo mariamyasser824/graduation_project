@@ -38,4 +38,36 @@ class SubmitTaskRepo {
       throw Exception(response["message"]);
     }
   }
+
+  Future<SubmitTaskResponse> submitAdventureTask({
+    required String adventureTaskId,
+    required String weeklyAdventureId,
+    String? voicePath,
+    String? imagePath,
+    String? comment,
+  }) async {
+    FormData data = FormData.fromMap({
+      "AdventureTaskId": adventureTaskId,
+      "WeeklyAdventureId": weeklyAdventureId,
+      if (voicePath != null)
+        "VoiceFile": await MultipartFile.fromFile(
+          voicePath,
+          filename: voicePath.split('/').last,
+        ),
+      if (imagePath != null)
+        "EvidenceFile": await MultipartFile.fromFile(
+          imagePath,
+          filename: imagePath.split('/').last,
+        ),
+      if (comment != null) "Comment": comment,
+    });
+
+    final response = await _api.post(ApiConstants.submitAdventureTask, data);
+
+    if (response["succeeded"] == true) {
+      return SubmitTaskResponse.fromJson(response);
+    } else {
+      throw Exception(response["message"]);
+    }
+  }
 }

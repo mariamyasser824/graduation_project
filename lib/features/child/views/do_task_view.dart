@@ -15,9 +15,18 @@ import 'package:rewarding_kids/features/child/widgets/homeAppbar.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
 
 class DoTaskView extends StatelessWidget {
-  const DoTaskView({super.key, required this.Taskdetails});
+  const DoTaskView({
+    super.key,
+    required this.Taskdetails,
+    required this.type,
+    this.adventureTaskId,
+    this.weeklyAdventureId,
+  });
 
-  final TaskModel Taskdetails;
+  final dynamic Taskdetails;
+  final SubmitType type;
+  final String? adventureTaskId;
+  final String? weeklyAdventureId;
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +36,11 @@ class DoTaskView extends StatelessWidget {
           if (state.response?.data?.status == "Completed") {
             //  context.read<ProgressCubit>()
             // .addPoints(state.response!.awardedPoints ?? 0);
-
-            context.go('/task_completed', extra: Taskdetails);
+            if (type == SubmitType.adventure) {
+              context.push('/adv_celepration');
+            } else {
+              context.push('/task_completed', extra: Taskdetails);
+            }
           }
           /*else if (state.response!.status == "ReviewRequested") {
             context.go('/pending_view', extra: Taskdetails);
@@ -94,7 +106,9 @@ class DoTaskView extends StatelessWidget {
                               width: 278.w,
                               height: 210.h,
 
-                              child: (Taskdetails.hasIcon)
+                              child:
+                                  (type == SubmitType.normal &&
+                                      Taskdetails.hasIcon)
                                   ? Image.network(
                                       Taskdetails.iconUrl!,
                                       width: 278.w,
@@ -123,7 +137,9 @@ class DoTaskView extends StatelessWidget {
                           children: [
                             Expanded(
                               child: CustomText(
-                                text: Taskdetails.descriptionEn,
+                                text: type == SubmitType.normal
+                                    ? Taskdetails.descriptionEn
+                                    : (Taskdetails.storyText ?? ''),
                                 iscenter: true,
                                 size: 14.sp,
                                 color: AppColors.descColor,
@@ -154,7 +170,8 @@ class DoTaskView extends StatelessWidget {
                               SizedBox(width: 10.h),
                               Coin(),
                               CustomText(
-                                text: '${Taskdetails.basePoints}',
+                                text:
+                                    '${type == SubmitType.normal ? Taskdetails.basePoints : Taskdetails.stars}',
                                 iscenter: true,
                                 size: 18.sp,
                                 weight: FontWeight.w500,
@@ -171,7 +188,17 @@ class DoTaskView extends StatelessWidget {
                 Custombutton(
                   onPressed: () {
                     context.read<SubmitTaskCubit>().submit(
-                      taskId: Taskdetails.id,
+                      type: type,
+
+                      taskId: type == SubmitType.normal ? Taskdetails.id : null,
+
+                      adventureTaskId: type == SubmitType.adventure
+                          ? adventureTaskId
+                          : null,
+
+                      weeklyAdventureId: type == SubmitType.adventure
+                          ? weeklyAdventureId
+                          : null,
                     );
                   },
                   text: 'I\'m Done!',

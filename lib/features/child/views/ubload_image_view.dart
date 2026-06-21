@@ -12,9 +12,19 @@ import 'package:rewarding_kids/features/child/widgets/homeAppbar.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
 
 class UploadImageView extends StatelessWidget {
-  const UploadImageView({super.key, required this.Taskdetails, this.imagePath});
-  final TaskModel Taskdetails;
+  const UploadImageView({
+    super.key,
+    required this.Taskdetails,
+    this.imagePath,
+    required this.type,
+    this.adventureTaskId,
+    this.weeklyAdventureId,
+  });
+  final dynamic Taskdetails;
   final String? imagePath;
+  final SubmitType type;
+  final String? adventureTaskId;
+  final String? weeklyAdventureId;
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +64,9 @@ class UploadImageView extends StatelessWidget {
                 child: Uploadimage(
                   Taskdetails: Taskdetails,
                   imagePath: imagePath,
+                  type: type,
+                  adventureTaskId: adventureTaskId,
+                  weeklyAdventureId: weeklyAdventureId,
                 ),
               ),
               SizedBox(height: 30.h),

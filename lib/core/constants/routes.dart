@@ -12,6 +12,8 @@ import 'package:rewarding_kids/features/Parent_registar/views/Child_gender_view.
 import 'package:rewarding_kids/features/Parent_registar/views/Child_name_view.dart';
 import 'package:rewarding_kids/features/Parent_registar/views/Relation_view.dart';
 import 'package:rewarding_kids/features/adventures/cubits/adventure_cubit/adventure_cubit.dart';
+import 'package:rewarding_kids/features/adventures/models/adv_task_model.dart';
+import 'package:rewarding_kids/features/adventures/models/basetask_model.dart';
 import 'package:rewarding_kids/features/adventures/repos/adventure_repo.dart';
 import 'package:rewarding_kids/features/adventures/views/adv_auto_task_view.dart';
 import 'package:rewarding_kids/features/adventures/views/adv_image_task_view.dart';
@@ -39,7 +41,7 @@ import 'package:rewarding_kids/features/child/views/do_task_view.dart';
 import 'package:rewarding_kids/features/child/views/qrcode_view.dart';
 import 'package:rewarding_kids/features/child/views/record_completed.dart';
 import 'package:rewarding_kids/features/child/views/record_task_view.dart';
-import 'package:rewarding_kids/features/child/views/ubload_image.dart';
+import 'package:rewarding_kids/features/child/views/ubload_image_view.dart';
 import 'package:rewarding_kids/features/child/views/voice_result_view.dart';
 import 'package:rewarding_kids/features/child/views/voice_task_view.dart';
 import 'package:rewarding_kids/features/child/widgets/CustomBottomNav.dart';
@@ -79,9 +81,9 @@ class AppRouter {
         path: '/getstarted',
         builder: (context, state) => const GetstartView(),
       ),
-      GoRoute(path: '/login', builder: (context, state) => const LoginView()),
+      GoRoute(path: '/login', builder: (context, state) => LoginView()),
 
-      GoRoute(path: '/signup', builder: (context, state) => const SignupView()),
+      GoRoute(path: '/signup', builder: (context, state) => SignupView()),
 
       GoRoute(
         path: '/forgetpass',
@@ -114,7 +116,13 @@ class AppRouter {
       ),
       GoRoute(
         path: '/resetpass2',
-        builder: (context, state) => const Resetpass2View(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return Resetpass2View(
+            email: extra["email"],
+            password: extra["password"],
+          );
+        },
       ),
 
       //parent_registar
@@ -169,13 +177,23 @@ class AppRouter {
       GoRoute(
         path: '/do_task',
         builder: (context, state) {
-          final task = state.extra as TaskModel?;
+          final data = state.extra as Map;
+          final task = data["task"]; // ✅ شيل الـ cast
+          final SubmitType type = data["type"];
+          final String? adventureTaskId = data["adventureTaskId"];
+          final String? weeklyAdventureId = data["weeklyAdventureId"];
+
           if (task == null) {
             return Scaffold(body: Center(child: Text('No task data!')));
           }
           return BlocProvider(
             create: (context) => SubmitTaskCubit(SubmitTaskRepo()),
-            child: DoTaskView(Taskdetails: task),
+            child: DoTaskView(
+              Taskdetails: task,
+              type: type,
+              weeklyAdventureId: weeklyAdventureId,
+              adventureTaskId: adventureTaskId,
+            ),
           );
         },
       ),
@@ -207,7 +225,13 @@ class AppRouter {
       GoRoute(
         path: '/record_task',
         builder: (context, state) {
-          final task = state.extra as TaskModel?;
+          final Map data = GoRouterState.of(context).extra as Map;
+
+          final SubmitType type = data["type"];
+          final task = data["task"];
+
+          final String? adventureTaskId = data["adventureTaskId"];
+          final String? weeklyAdventureId = data["weeklyAdventureId"];
 
           if (task == null) {
             return Scaffold(body: Center(child: Text('No task data!')));
@@ -215,7 +239,12 @@ class AppRouter {
 
           return BlocProvider(
             create: (context) => SubmitTaskCubit(SubmitTaskRepo()),
-            child: RecordTaskView(Taskdetails: task),
+            child: RecordTaskView(
+              Taskdetails: task,
+              type: type,
+              adventureTaskId: adventureTaskId,
+              weeklyAdventureId: weeklyAdventureId,
+            ),
           );
         },
       ),
@@ -228,6 +257,7 @@ class AppRouter {
             task: data["task"],
             audioPath: data["audioPath"],
             response: data["response"],
+            type: data["type"], // 🔥 مهم
           );
         },
       ),
@@ -251,13 +281,18 @@ class AppRouter {
       GoRoute(
         path: '/take_image',
         builder: (context, state) {
-          final task = state.extra as TaskModel?;
+          final data = state.extra as Map;
 
-          if (task == null) {
+          if (data["task"] == null) {
             return Scaffold(body: Center(child: Text('No task data!')));
           }
 
-          return Takeimage(Taskdetails: task);
+          return Takeimage(
+            Taskdetails: data["task"],
+            type: data["type"], // 🔥
+            adventureTaskId: data["adventureTaskId"],
+            weeklyAdventureId: data["weeklyAdventureId"],
+          );
         },
       ),
 
@@ -269,13 +304,20 @@ class AppRouter {
           if (data == null) {
             return Scaffold(body: Center(child: Text('No task data!')));
           }
-
-          final task = data["task"] as TaskModel;
+          final task = data['task'];
           final imagepath = data["image_path"] as String?;
 
           return BlocProvider(
             create: (context) => SubmitTaskCubit(SubmitTaskRepo()),
-            child: PendingView(Taskdetails: task, imagePath: imagepath),
+            child: PendingView(
+              Taskdetails: task,
+              imagePath: imagepath,
+              type: data["type"],
+
+              // 🔥 مهم
+              adventureTaskId: data["adventureTaskId"],
+              weeklyAdventureId: data["weeklyAdventureId"],
+            ),
           );
         },
       ),
@@ -288,10 +330,17 @@ class AppRouter {
             return Scaffold(body: Center(child: Text('No data!')));
           }
 
-          final task = data['task'] as TaskModel;
+          final task = data['task'];
           final imagePath = data['image_path'] as String?;
 
-          return UploadImageView(Taskdetails: task, imagePath: imagePath);
+          return UploadImageView(
+            Taskdetails: task,
+            imagePath: imagePath,
+            type: data['type'],
+
+            adventureTaskId: data["adventureTaskId"],
+            weeklyAdventureId: data["weeklyAdventureId"],
+          );
         },
       ),
       GoRoute(
@@ -376,19 +425,32 @@ class AppRouter {
       ),
       GoRoute(
         path: '/intro_level',
-        builder: (context, state) => IntroLevelView(),
+        builder: (context, state) {
+          final task = state.extra as AdvTaskModel;
+          return IntroLevelView(task: task);
+        },
       ),
       GoRoute(
         path: '/adv_voice_task',
-        builder: (context, state) => AdvVoiceTaskView(),
+        builder: (context, state) {
+          final task = state.extra as AdvTaskModel;
+
+          return AdvVoiceTaskView(task: task);
+        },
       ),
       GoRoute(
         path: '/adv_image_task',
-        builder: (context, state) => AdvImageTaskView(),
+        builder: (context, state) {
+          final task = state.extra as AdvTaskModel;
+          return AdvImageTaskView(task: task);
+        },
       ),
       GoRoute(
         path: '/adv_auto_task',
-        builder: (context, state) => AdvAutoTaskView(),
+        builder: (context, state) {
+          final task = state.extra as AdvTaskModel;
+          return AdvAutoTaskView(task: task);
+        },
       ),
       GoRoute(
         path: '/adv_celepration',

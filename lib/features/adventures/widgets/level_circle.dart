@@ -57,7 +57,7 @@ class LevelCircle extends StatelessWidget {
   }
 
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
       child: Column(
         children: [

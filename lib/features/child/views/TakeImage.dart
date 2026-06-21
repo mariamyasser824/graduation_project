@@ -3,15 +3,26 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
+import 'package:rewarding_kids/features/child/cubit/SubmitTaskCubit.dart';
 import 'package:rewarding_kids/features/child/data/models/task_model.dart';
 import 'package:rewarding_kids/features/child/widgets/CameraInContainer.dart';
 import 'package:rewarding_kids/features/child/widgets/homeAppbar.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
 
 class Takeimage extends StatelessWidget {
-  const Takeimage({super.key, required this.Taskdetails});
-  final TaskModel Taskdetails;
+  const Takeimage({
+    super.key,
+    required this.Taskdetails,
+    required this.type,
+    this.adventureTaskId,
+    this.weeklyAdventureId,
+  });
 
+  final dynamic Taskdetails;
+  final SubmitType type;
+
+  final String? adventureTaskId;
+  final String? weeklyAdventureId;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +58,14 @@ class Takeimage extends StatelessWidget {
               SizedBox(height: 30.h),
 
               /// Expanded لتجنب overflow
-              Expanded(child: CameraInContainer(Taskdetails: Taskdetails)),
+              Expanded(
+                child: CameraInContainer(
+                  Taskdetails: Taskdetails,
+                  type: type, // 🔥
+                  weeklyAdventureId: weeklyAdventureId,
+                  adventureTaskId: adventureTaskId,
+                ),
+              ),
             ],
           ),
         ),

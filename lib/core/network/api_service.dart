@@ -12,7 +12,7 @@ class ApiService {
 
       return response.data;
     } on DioException catch (e) {
-      throw ApiExceptions.handleError(e);
+      return ApiExceptions.handleError(e);
     }
   }
 
@@ -23,7 +23,7 @@ class ApiService {
 
       return response.data;
     } on DioException catch (e) {
-      throw ApiExceptions.handleError(e);
+      return ApiExceptions.handleError(e);
     }
   }
 
@@ -34,7 +34,7 @@ class ApiService {
 
       return response.data;
     } on DioException catch (e) {
-    throw ApiExceptions.handleError(e);
+      return ApiExceptions.handleError(e);
     }
   }
 
@@ -45,7 +45,7 @@ class ApiService {
 
       return response.data;
     } on DioException catch (e) {
-    throw ApiExceptions.handleError(e);
+      return ApiExceptions.handleError(e);
     }
   }
 }

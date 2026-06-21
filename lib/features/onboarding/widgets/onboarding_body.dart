@@ -44,9 +44,10 @@ class _OnboardingBodyState extends State<OnboardingBody> {
           ),
 
           // ---- Spacer for top gap ----
-          SizedBox(height: 0.05.sh), // 5% of screen height
+          const Spacer(), // 5% of screen height
           // ---- Slider ----
           Expanded(
+            flex: 9,
             child: OnboardingSlider(
               controller: _controller,
               onPageChanged: (index) {
@@ -56,7 +57,7 @@ class _OnboardingBodyState extends State<OnboardingBody> {
           ),
 
           // ---- Bottom Spacer ----
-          SizedBox(height: 0.05.sh), // 5% of screen height
+          SizedBox(height: 25.h),
         ],
       ),
     );

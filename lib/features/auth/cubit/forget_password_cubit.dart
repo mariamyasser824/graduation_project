@@ -7,18 +7,21 @@ class ForgetPasswordCubit extends Cubit<ForgetPasswordState> {
   final AuthService _authService = AuthService();
 
   ForgetPasswordCubit() : super(ForgetPasswordInitial());
-
+  // ✅ الصح
   Future<void> forgotPassword(String email) async {
     emit(ForgetPasswordLoading());
-
-    final response = await _authService.forgotPassword(email: email);
-
-    if (response["succeeded"] == true) {
-      final userId = response["data"]["userId"];
-
-      emit(ForgetPasswordSuccess(userId));
-    } else {
-      emit(ForgetPasswordError(response["message"] ?? "Something went wrong"));
+    try {
+      final response = await _authService.forgotPassword(email: email);
+      if (response is Map<String, dynamic> && response["succeeded"] == true) {
+        final userId = response["data"]["userId"];
+        emit(ForgetPasswordSuccess(userId));
+      } else {
+        emit(
+          ForgetPasswordError(response["message"] ?? "Something went wrong"),
+        );
+      }
+    } catch (e) {
+      emit(ForgetPasswordError(e.toString()));
     }
   }
 }

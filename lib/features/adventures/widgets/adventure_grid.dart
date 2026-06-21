@@ -37,8 +37,7 @@ class AdventureGrid extends StatelessWidget {
                 banner: adv.bannerImageUrl,
                 completedTasksCount: adv.completedTasksCount,
 
-                isLocked:
-                    adv.status != "Active", // بعدين نربطها بالـ accessStatus
+                isLocked:adv.status == "InActive", // بعدين نربطها بالـ accessStatus
                 isNew: adv.status == 'Active' && index == 0,
                 onLockedTap: onLockedTap,
                 onTap: () {

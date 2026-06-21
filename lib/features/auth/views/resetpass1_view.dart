@@ -7,6 +7,7 @@ import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
 import 'package:rewarding_kids/Shared/Customtextformfiled.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
+import 'package:rewarding_kids/core/utils/dialog_helper.dart';
 import 'package:rewarding_kids/features/auth/cubit/reset_password_cubit.dart';
 import 'package:rewarding_kids/features/auth/cubit/reset_password_state.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
@@ -57,24 +58,18 @@ class _Resetpass1ViewState extends State<Resetpass1View> {
     return BlocListener<ResetPasswordCubit, ResetPasswordState>(
       listener: (context, state) {
         if (state is ResetPasswordLoading) {
-          showDialog(
-            context: context,
-            builder: (_) => const Center(child: CircularProgressIndicator()),
-          );
+          DialogHelper.showLoading(context);
         } else {
-          // نغلق الـ Loading لأي حالة مش Loading
-          Navigator.of(context, rootNavigator: true).pop();
+          DialogHelper.hideLoading(context);
         }
 
         if (state is ResetPasswordSuccess) {
-          Navigator.pop(context);
-
-          context.push('/resetpass2');
+          context.push(
+            '/resetpass2',
+            extra: {"email": state.email, "password": state.password},
+          );
         }
-
         if (state is ResetPasswordError) {
-          Navigator.pop(context);
-
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(state.error)));
@@ -104,12 +99,12 @@ class _Resetpass1ViewState extends State<Resetpass1View> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 30.h),
+                  SizedBox(height: 40.h),
                   Center(
-                    child: SvgPicture.asset(
-                      'assets/icons/lock.svg',
-                      width: 56.w,
-                      height: 56.h,
+                    child: Image.asset(
+                      'assets/icons/lock.png',
+                      width: 30.w,
+                      height: 40.h,
                     ),
                   ),
                   SizedBox(height: 20.h),
@@ -141,19 +136,21 @@ class _Resetpass1ViewState extends State<Resetpass1View> {
                   ),
                   SizedBox(height: 15.h),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+
                     children: [
                       SizedBox(width: 20.w),
                       Icon(
                         Icons.check_circle,
-                        color: AppColors.descColor,
-                        size: 18.sp,
+                        color: Color(0xff6B7280),
+                        size: 24.sp,
                       ),
                       SizedBox(width: 10.w),
                       Expanded(
                         child: CustomText(
                           text: 'Must Be At Least 8 Characters',
                           iscenter: false,
-                          color: AppColors.descColor,
+                          color: Color(0xff6B7280),
                           weight: FontWeight.w500,
                           size: 14.sp,
                         ),
@@ -162,19 +159,20 @@ class _Resetpass1ViewState extends State<Resetpass1View> {
                   ),
                   SizedBox(height: 15.h),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       SizedBox(width: 20.w),
                       Icon(
                         Icons.check_circle,
-                        color: AppColors.descColor,
-                        size: 18.sp,
+                        color: Color(0xff6B7280),
+                        size: 24.sp,
                       ),
                       SizedBox(width: 10.w),
                       Expanded(
                         child: CustomText(
                           text: 'Must Contain One Special Character',
                           iscenter: false,
-                          color: AppColors.descColor,
+                          color: Color(0xff6B7280),
                           weight: FontWeight.w500,
                           size: 14.sp,
                         ),
@@ -184,15 +182,13 @@ class _Resetpass1ViewState extends State<Resetpass1View> {
                   SizedBox(height: 25.h),
                   Custombutton(
                     onPressed: () {
-                      final newPass = newpassController.text;
-                      final confirmPass = confirmnewpassController.text;
-
                       context.read<ResetPasswordCubit>().resetPassword(
                         userId: widget.userId,
                         otp: widget.otp,
                         token: "null",
-                        newPassword: newPass,
-                        confirmPassword: confirmPass,
+                        newPassword: newpassController.text,
+                        confirmPassword: confirmnewpassController.text,
+                        email: widget.email, // 👈 ضيف دي
                       );
                     },
                     text: 'Reset',

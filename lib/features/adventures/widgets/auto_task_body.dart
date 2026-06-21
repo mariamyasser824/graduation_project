@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rewarding_kids/features/adventures/models/adv_task_model.dart';
 import 'package:rewarding_kids/features/adventures/widgets/StackedAdventureCard.dart';
 import 'package:rewarding_kids/features/adventures/widgets/check_item.dart';
 import 'package:rewarding_kids/features/adventures/widgets/start_adventure_button.dart';
 import 'package:rewarding_kids/features/adventures/widgets/task_header.dart';
+import 'package:rewarding_kids/features/child/cubit/SubmitTaskCubit.dart';
 
 class AutoTaskBody extends StatelessWidget {
-  const AutoTaskBody({super.key});
+  final AdvTaskModel task;
+  const AutoTaskBody({super.key, required this.task});
 
   Widget build(BuildContext context) {
     return Padding(
@@ -21,13 +24,11 @@ class AutoTaskBody extends StatelessWidget {
           ),
           SizedBox(height: 30.h),
           AdventureCard(
-            title: "Show the stars you counted",
-            subtitle: "Win 40 points ",
-            step: "Step 3 of 7",
+            title: task.titleEn,
+            subtitle: "Win ${task.stars} points",
+            step: "Step ${task.dayNumber} of 7",
             icon: Icons.check,
-            onMicTap: () {
-              //  print("Mic clicked");
-            },
+            onMicTap: () {},
           ),
           SizedBox(height: 70.h),
           CheckItem(text: ' Look at your work carefully 🌟'),
@@ -37,7 +38,16 @@ class AutoTaskBody extends StatelessWidget {
           Spacer(),
           StartAdventureButton(
             onTap: () {
-              context.push('/adv_celepration');
+              GoRouter.of(context).push(
+                '/do_task',
+                extra: {
+                  "task": task,
+                  "type": SubmitType.adventure, // أو adventure
+                  // لو adventure بس
+                  "adventureTaskId": task.adventureTaskId,
+                  "weeklyAdventureId": task.weeklyAdventureId,
+                },
+              );
             },
             text: 'Mission Complete',
           ),

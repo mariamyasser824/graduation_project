@@ -11,7 +11,7 @@ class Forgetbutton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         GestureDetector(
-          onTap: (){context.go('/forgetpass');},
+          onTap: (){context.push('/forgetpass');},
           child: Text(
             'Forgot password?',
             style: TextStyle(

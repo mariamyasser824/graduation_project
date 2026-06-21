@@ -1,3 +1,4 @@
+// login_cubit.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import '../../../core/network/api_error.dart';
@@ -16,69 +17,51 @@ class LoginCubit extends Cubit<LoginState> {
     String loginAs = "Parent",
   }) async {
     emit(LoginLoading());
+    try {
+      final response = await _authService.login(
+        identifier: identifier,
+        password: password,
+        loginAs: loginAs,
+      );
 
-    debugPrint('🔵 LOGIN REQUEST');
-    debugPrint('identifier: $identifier');
-    debugPrint('loginAs: $loginAs');
+      debugPrint('🟡 RAW RESPONSE => $response');
 
-    final response = await _authService.login(
-      identifier: identifier,
-      password: password,
-      loginAs: loginAs,
-    );
-
-    // طباعة الريسبونس كامل
-    debugPrint('🟡 RAW RESPONSE => $response');
-
-    // لو Error من ApiService
-    if (response is ApiError) {
-      debugPrint('🔴 API ERROR => ${response.message}');
-      emit(LoginError(response.message));
-      return;
-    }
-
-    // التأكد إن الريسبونس Map
-    if (response is Map<String, dynamic>) {
-      debugPrint('🟢 STATUS CODE => ${response["statusCode"]}');
-      debugPrint('🟢 SUCCEEDED => ${response["succeeded"]}');
-      debugPrint('🟢 MESSAGE => ${response["message"]}');
-      debugPrint('🟢 DATA => ${response["data"]}');
-
-      // ✅ الشرط الصحيح
-      if (response["succeeded"] == true) {
-        final data = response["data"];
-        final accessToken = data["accessToken"];
-        final refreshToken = data["refreshToken"];
-        final userType = data["userType"];
-        final userId = data["userId"];
-        final childId = data["childId"];
-        debugPrint('🟣 ACCESS TOKEN => $accessToken');
-
-        if (accessToken != null && accessToken.toString().isNotEmpty) {
-          await PrefHelper.saveAccessToken(accessToken);
-        }
-
-        if (refreshToken != null && refreshToken.toString().isNotEmpty) {
-          await PrefHelper.saveRefreshToken(refreshToken);
-        }
-        await PrefHelper.saveUserType(userType);
-
-        /// حفظ اليوزر
-        await PrefHelper.saveUserId(userId);
-        await PrefHelper.saveChildId(childId);
-        emit(
-          LoginSuccess(
-            message: response["message"] ?? "Login successful",
-            token: accessToken ?? "",
-          ),
-        );
-      } else {
-        debugPrint('❌ LOGIN FAILED FROM API');
-        emit(LoginError(response["message"] ?? "Login failed"));
+      if (response is ApiError) {
+        emit(LoginError(response.message));
+        return;
       }
-    } else {
-      debugPrint('❌ INVALID RESPONSE FORMAT');
-      emit(LoginError("Invalid response format"));
+
+      if (response is Map<String, dynamic>) {
+        if (response["succeeded"] == true) {
+          final data = response["data"];
+          final accessToken = data["accessToken"];
+          final refreshToken = data["refreshToken"];
+
+          if (accessToken != null && accessToken.toString().isNotEmpty) {
+            await PrefHelper.saveAccessToken(accessToken);
+          }
+          if (refreshToken != null && refreshToken.toString().isNotEmpty) {
+            await PrefHelper.saveRefreshToken(refreshToken);
+          }
+          await PrefHelper.saveUserType(data["userType"]);
+          await PrefHelper.saveUserId(data["userId"]);
+          await PrefHelper.saveChildId(data["childId"]);
+
+          emit(
+            LoginSuccess(
+              message: response["message"] ?? "Login successful",
+              token: accessToken ?? "",
+            ),
+          );
+        } else {
+          emit(LoginError(response["message"] ?? "Login failed"));
+        }
+      } else {
+        emit(LoginError("Invalid response format"));
+      }
+    } catch (e) {
+      debugPrint('❌ LOGIN EXCEPTION => $e');
+      emit(LoginError(e.toString()));
     }
   }
 }

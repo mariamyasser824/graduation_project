@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rewarding_kids/features/adventures/models/adv_task_model.dart';
+import 'package:rewarding_kids/features/adventures/models/basetask_model.dart';
 import 'package:rewarding_kids/features/adventures/widgets/StackedAdventureCard.dart';
 import 'package:rewarding_kids/features/adventures/widgets/check_item.dart';
 import 'package:rewarding_kids/features/adventures/widgets/start_adventure_button.dart';
 import 'package:rewarding_kids/features/adventures/widgets/task_header.dart';
+import 'package:rewarding_kids/features/child/cubit/SubmitTaskCubit.dart';
 
 class ImageTaskBody extends StatelessWidget {
-  const ImageTaskBody({super.key});
+  final AdvTaskModel task;
+  const ImageTaskBody({super.key, required this.task});
 
   @override
   Widget build(BuildContext context) {
@@ -22,13 +26,11 @@ class ImageTaskBody extends StatelessWidget {
           ),
           SizedBox(height: 30.h),
           AdventureCard(
-            title: "Show the stars you counted",
-            subtitle: "Win 40 points ",
-            step: "Step 2 of 7",
+            title: task.titleEn,
+            subtitle: "Win ${task.stars} points",
+            step: "Step ${task.dayNumber} of 7",
             icon: Icons.image_outlined,
-            onMicTap: () {
-              //  print("Mic clicked");
-            },
+            onMicTap: () {},
           ),
           SizedBox(height: 70.h),
           CheckItem(text: 'Look at your work carefully 🌟'),
@@ -40,7 +42,16 @@ class ImageTaskBody extends StatelessWidget {
           Spacer(),
           StartAdventureButton(
             onTap: () {
-              context.push('/adv_auto_task');
+              GoRouter.of(context).push(
+                '/take_image',
+                extra: {
+                  "task": task,
+                  "type": SubmitType.adventure, // أو adventure
+                  // لو adventure بس
+                  "adventureTaskId": task.adventureTaskId,
+                  "weeklyAdventureId": task.weeklyAdventureId,
+                },
+              );
             },
             text: 'Take a Photo',
           ),

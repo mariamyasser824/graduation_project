@@ -20,9 +20,15 @@ class PendingView extends StatefulWidget {
     super.key,
     required this.Taskdetails,
     required this.imagePath,
+    required this.type,
+    this.adventureTaskId,
+    this.weeklyAdventureId,
   });
-  final TaskModel Taskdetails;
+  final dynamic Taskdetails;
   final String? imagePath;
+  final SubmitType type;
+  final String? adventureTaskId;
+  final String? weeklyAdventureId;
 
   @override
   State<PendingView> createState() => _PendingViewState();
@@ -60,7 +66,7 @@ class _PendingViewState extends State<PendingView> {
 
             context.read<ProgressCubit>().fetchPoints(); // 🔥 أهم سطر
 
-            context.go('/Custombottomnav');
+            context.push('/Custombottomnav');
           }
         }
 
@@ -146,7 +152,8 @@ class _PendingViewState extends State<PendingView> {
                       ),
                       SizedBox(width: 10.h),
                       CustomText(
-                        text: '${widget.Taskdetails.basePoints}',
+                        text:
+                            '${widget.type == SubmitType.normal ? widget.Taskdetails.basePoints : widget.Taskdetails.stars}',
                         iscenter: true,
                         size: 18.sp,
                         weight: FontWeight.w500,
@@ -174,7 +181,24 @@ class _PendingViewState extends State<PendingView> {
                       ? null
                       : () {
                           context.read<SubmitTaskCubit>().submit(
-                            taskId: widget.Taskdetails.id,
+                            type: widget.type, // 🔥 أهم سطر
+                            // 🟢 لو task عادية
+                            taskId: widget.type == SubmitType.normal
+                                ? widget.Taskdetails.id
+                                : null,
+
+                            // 🔥 لو adventure
+                            adventureTaskId: widget.type == SubmitType.adventure
+                                ? widget
+                                      .adventureTaskId // أو id الصح بتاعك
+                                : null,
+
+                            weeklyAdventureId:
+                                widget.type == SubmitType.adventure
+                                ? widget
+                                      .weeklyAdventureId // ❗ لازم يكون جاي من فوق
+                                : null,
+
                             imagePath: widget.imagePath,
                             comment: noteController.text,
                           );

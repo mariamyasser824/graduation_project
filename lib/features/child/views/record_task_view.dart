@@ -14,9 +14,19 @@ import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
 import 'package:rewarding_kids/features/child/widgets/homeAppbar.dart';
 
 class RecordTaskView extends StatefulWidget {
-  final TaskModel Taskdetails;
+  final dynamic Taskdetails;
 
-  const RecordTaskView({super.key, required this.Taskdetails});
+  final SubmitType type;
+  final String? adventureTaskId;
+  final String? weeklyAdventureId;
+
+  const RecordTaskView({
+    super.key,
+    required this.Taskdetails,
+    required this.type,
+    this.adventureTaskId,
+    this.weeklyAdventureId,
+  });
 
   @override
   State<RecordTaskView> createState() => _RecordTaskViewState();
@@ -33,7 +43,18 @@ class _RecordTaskViewState extends State<RecordTaskView> {
     if (recordedFilePath == null) return;
 
     context.read<SubmitTaskCubit>().submit(
-      taskId: widget.Taskdetails.id,
+      type: widget.type,
+
+      taskId: widget.type == SubmitType.normal ? widget.Taskdetails.id : null,
+
+      adventureTaskId: widget.type == SubmitType.adventure
+          ? widget.adventureTaskId
+          : null,
+
+      weeklyAdventureId: widget.type == SubmitType.adventure
+          ? widget.weeklyAdventureId
+          : null,
+
       voicePath: recordedFilePath,
     );
   }
@@ -91,8 +112,9 @@ class _RecordTaskViewState extends State<RecordTaskView> {
               '/voice_result',
               extra: {
                 "response": state.response,
-                "audioPath": recordedFilePath, // ✅ الصح
+                "audioPath": recordedFilePath,
                 "task": widget.Taskdetails,
+                "type": widget.type, // 🔥 مهم
               },
             );
           }
@@ -149,7 +171,20 @@ class _RecordTaskViewState extends State<RecordTaskView> {
                       recordedFilePath = path; // ✅ خزني الباث هنا
 
                       context.read<SubmitTaskCubit>().submit(
-                        taskId: widget.Taskdetails.id,
+                        type: widget.type,
+
+                        taskId: widget.type == SubmitType.normal
+                            ? widget.Taskdetails.id
+                            : null,
+
+                        adventureTaskId: widget.type == SubmitType.adventure
+                            ? widget.adventureTaskId
+                            : null,
+
+                        weeklyAdventureId: widget.type == SubmitType.adventure
+                            ? widget.weeklyAdventureId
+                            : null,
+
                         voicePath: path,
                       );
                     },

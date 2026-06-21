@@ -10,7 +10,6 @@ environment:
 dependencies:
   audioplayers: ^5.2.1
   cupertino_icons: ^1.0.8
- 
   dio: ^5.9.1
   dotted_border: ^3.1.0
   equatable: ^2.0.5
@@ -29,6 +28,7 @@ dependencies:
   http_parser: ^4.1.2
   image_cropper: ^8.0.2
   image_picker: ^1.1.1
+  just_audio: 0.9.46
   permission_handler: ^11.3.0
   qr_flutter: ^4.1.0
   record: ^6.2.0

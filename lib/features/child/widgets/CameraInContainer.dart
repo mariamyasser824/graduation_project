@@ -4,11 +4,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
+import 'package:rewarding_kids/features/child/cubit/SubmitTaskCubit.dart';
 import 'package:rewarding_kids/features/child/data/models/task_model.dart';
 
 class CameraInContainer extends StatefulWidget {
-  const CameraInContainer({super.key, required this.Taskdetails});
-  final TaskModel Taskdetails;
+  const CameraInContainer({
+    super.key,
+    required this.Taskdetails,
+    required this.type,
+    this.adventureTaskId,
+    this.weeklyAdventureId,
+  });
+  final dynamic Taskdetails;
+  final SubmitType type;
+  final String? adventureTaskId;
+  final String? weeklyAdventureId;
 
   @override
   State<CameraInContainer> createState() => _CameraInContainerState();
@@ -30,8 +40,11 @@ class _CameraInContainerState extends State<CameraInContainer> {
       context.push(
         '/uploadimage',
         extra: {
-          'task': widget.Taskdetails, // بدل 'Taskdetails'
-          'image_path': pickedImage.path, // بدل 'imagePath'
+          'task': widget.Taskdetails,
+          'image_path': pickedImage.path,
+          'type': widget.type,
+          'adventureTaskId': widget.adventureTaskId,
+          'weeklyAdventureId': widget.weeklyAdventureId, // 🔥
         },
       );
     } catch (e) {

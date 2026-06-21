@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:rewarding_kids/core/network/api_constants.dart';
 import 'package:rewarding_kids/core/network/api_service.dart';
 import 'package:rewarding_kids/features/adventures/models/adv_task_model.dart';
@@ -34,4 +36,42 @@ class AdventureRepo {
 
     return data.map((e) => AdvTaskModel.fromJson(e)).toList();
   }*/
+
+  Future<dynamic> submitTask({
+    required String adventureTaskId,
+    required String weeklyAdventureId,
+    File? voiceFile,
+    File? imageFile,
+    String? comment,
+  }) async {
+    final formData = FormData.fromMap({
+      "AdventureTaskId": adventureTaskId,
+      "WeeklyAdventureId": weeklyAdventureId,
+
+      if (voiceFile != null)
+        "VoiceFile": await MultipartFile.fromFile(
+          voiceFile.path,
+          filename: "voice.wav",
+        ),
+
+      if (imageFile != null)
+        "EvidenceFile": await MultipartFile.fromFile(
+          imageFile.path,
+          filename: "image.jpg",
+        ),
+
+      if (comment != null) "Comment": comment,
+    });
+
+    await apiService.post(
+      ApiConstants.submitAdventureTask,
+      formData, // 👈 هنا الصح
+    );
+    final response = await apiService.post(
+      ApiConstants.submitAdventureTask,
+      formData,
+    );
+
+    return response;
+  }
 }

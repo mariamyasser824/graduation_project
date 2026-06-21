@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
+import 'package:rewarding_kids/features/child/cubit/SubmitTaskCubit.dart';
 import 'package:rewarding_kids/features/child/data/models/task_model.dart';
 import 'package:rewarding_kids/features/child/widgets/coin.dart';
 import 'package:rewarding_kids/features/child/widgets/homeAppbar.dart';
@@ -134,23 +135,9 @@ class VoiceTaskView extends StatelessWidget {
               Spacer(),
               Custombutton(
                 onPressed: () {
-                  GoRouter.of(context).push(
+                  context.push(
                     '/record_task',
-                    extra: TaskModel(
-                      titleEn: Taskdetails.titleEn,
-                      iconUrl: Taskdetails.iconUrl,
-                      basePoints: Taskdetails.basePoints,
-                      descriptionEn: Taskdetails.descriptionEn,
-                      id: Taskdetails.id,
-                      titleAr: Taskdetails.titleAr,
-                      descriptionAr: Taskdetails.descriptionAr,
-
-                      difficulty: Taskdetails.difficulty,
-                      templateType: Taskdetails.templateType,
-                      createdAt: Taskdetails.createdAt,
-                      subCategoryId: Taskdetails.subCategoryId,
-                      subCategoryNameEn: Taskdetails.subCategoryNameEn,
-                    ),
+                    extra: {"type": SubmitType.normal, "task": Taskdetails},
                   );
                 },
                 text: 'Start',

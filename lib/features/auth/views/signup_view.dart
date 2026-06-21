@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
+import 'package:rewarding_kids/core/utils/dialog_helper.dart';
 import 'package:rewarding_kids/features/auth/cubit/signup_cubit.dart';
 import 'package:rewarding_kids/features/auth/cubit/signup_state.dart';
 import 'package:rewarding_kids/features/auth/widgets/signup_form.dart';
@@ -12,38 +13,33 @@ import 'package:rewarding_kids/features/child/widgets/child_login.dart';
 import 'package:rewarding_kids/features/onboarding/widgets/popbutton.dart';
 
 class SignupView extends StatelessWidget {
-  const SignupView({super.key});
-
+  SignupView({super.key});
+  bool _isDialogShowing = false;
   @override
   Widget build(BuildContext context) {
     return BlocListener<SignupCubit, SignupState>(
       listener: (context, state) {
-        // Loading
         if (state is SignupLoading) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => const Center(child: CircularProgressIndicator()),
-          );
+          _isDialogShowing = true;
+          DialogHelper.showLoading(context);
         } else {
-          // نغلق الـ Loading لأي حالة مش Loading
-          Navigator.of(context, rootNavigator: true).pop();
+          if (_isDialogShowing) {
+            _isDialogShowing = false;
+            DialogHelper.hideLoading(context);
+          }
         }
-        // Success
+
         if (state is SignupSuccess) {
-          // Navigator.of(context, rootNavigator: true).pop(); // close loading
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(state.message)));
           context.push(
             '/otp1',
             extra: {"email": state.email, "flow": "activate"},
-          ); // مثال
+          );
         }
 
-        // Error
         if (state is SignupError) {
-          //  Navigator.of(context, rootNavigator: true).pop(); // close loading
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(state.error)));
@@ -65,7 +61,7 @@ class SignupView extends StatelessWidget {
                         if (context.canPop()) {
                           context.pop();
                         } else {
-                          context.go('/getstarted');
+                          context.push('/getstarted');
                         }
                       },
                     ),
@@ -79,7 +75,15 @@ class SignupView extends StatelessWidget {
                   weight: FontWeight.w500,
                   color: AppColors.titleColor,
                 ),
-                SizedBox(height: 16.h),
+                SizedBox(height: 8.h),
+                CustomText(
+                  text: 'Please, Fill Parent Info',
+                  iscenter: true,
+                  size: 14.sp,
+                  weight: FontWeight.w400,
+                  color: Color(0xff9CA3B0),
+                ),
+                SizedBox(height: 10.h),
                 // Tabs & Forms
                 Expanded(
                   child: UserTypeTabs(
@@ -88,14 +92,6 @@ class SignupView extends StatelessWidget {
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
-                            CustomText(
-                              text: 'Please, Fill Parent Info',
-                              iscenter: true,
-                              size: 16.sp,
-                              weight: FontWeight.w400,
-                              color: AppColors.titleColor,
-                            ),
-                            SizedBox(height: 10.h),
                             SignupForm(),
                             SizedBox(height: 20.h),
                           ],

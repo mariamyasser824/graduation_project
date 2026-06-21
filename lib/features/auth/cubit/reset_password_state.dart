@@ -9,7 +9,12 @@ class ResetPasswordInitial extends ResetPasswordState {}
 
 class ResetPasswordLoading extends ResetPasswordState {}
 
-class ResetPasswordSuccess extends ResetPasswordState {}
+// في reset_password_state.dart
+class ResetPasswordSuccess extends ResetPasswordState {
+  final String email; // 👈 ضيف دول
+  final String password; // 👈
+  ResetPasswordSuccess({required this.email, required this.password});
+}
 
 class ResetPasswordError extends ResetPasswordState {
   final String error;

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
+import 'package:rewarding_kids/features/child/cubit/SubmitTaskCubit.dart';
 import '../data/models/task_model.dart';
 
 class Taskcard extends StatelessWidget {
@@ -13,7 +14,16 @@ class Taskcard extends StatelessWidget {
     if (task.templateType == "VoiceQuestion") {
       GoRouter.of(context).push('/voice_task', extra: task);
     } else if (task.templateType == "EvidenceSubmission") {
-      GoRouter.of(context).push('/take_image', extra: task);
+      GoRouter.of(context).push(
+        '/take_image',
+        extra: {
+          "task": task,
+          "type": SubmitType.normal, // أو adventure
+          // لو adventure بس
+          "adventureTaskId": null,
+          "weeklyAdventureId": null,
+        },
+      );
     } else {
       GoRouter.of(context).push('/task_view', extra: task);
     }

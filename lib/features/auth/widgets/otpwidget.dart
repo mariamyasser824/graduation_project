@@ -20,7 +20,18 @@ class Otpwidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: 40.h),
+        // SizedBox(height: 15.h),
+        CustomText(
+          text: enableResend
+              ? "00:00"
+              : "00:${secondsRemaining.toString().padLeft(2, '0')}",
+          iscenter: true,
+          color: AppColors.titleColor,
+          weight: FontWeight.w400,
+          size: 20.sp,
+        ),
+
+        SizedBox(height: 20.h),
 
         // OTP Fields
         Row(
@@ -28,8 +39,8 @@ class Otpwidget extends StatelessWidget {
           children: List.generate(
             6,
             (index) => SizedBox(
-              width: 48.w,
-              height: 48.h,
+              width: MediaQuery.of(context).size.width * 0.12,
+              height: MediaQuery.of(context).size.width * 0.12,
               child: TextField(
                 controller: otpControllers[index],
                 textAlign: TextAlign.center,
@@ -56,18 +67,6 @@ class Otpwidget extends StatelessWidget {
               ),
             ),
           ),
-        ),
-
-        SizedBox(height: 20.h),
-
-        CustomText(
-          text: enableResend
-              ? "00:00"
-              : "00:${secondsRemaining.toString().padLeft(2, '0')}",
-          iscenter: true,
-          color: AppColors.titleColor,
-          weight: FontWeight.w400,
-          size: 20.sp,
         ),
 
         SizedBox(height: 24.h),

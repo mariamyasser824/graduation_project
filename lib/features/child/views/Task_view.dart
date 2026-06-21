@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/Shared/Custombutton.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
+import 'package:rewarding_kids/features/child/cubit/SubmitTaskCubit.dart';
 import 'package:rewarding_kids/features/child/data/models/task_model.dart';
 import 'package:rewarding_kids/features/child/widgets/coin.dart';
 import 'package:rewarding_kids/features/child/widgets/homeAppbar.dart';
@@ -142,7 +143,16 @@ class TaskView extends StatelessWidget {
               Spacer(),
               Custombutton(
                 onPressed: () {
-                  GoRouter.of(context).push('/do_task', extra: Taskdetails);
+                  GoRouter.of(context).push(
+                    '/do_task',
+                    extra: {
+                      "task": Taskdetails,
+                      "type": SubmitType.normal, // أو adventure
+                      // لو adventure بس
+                      "adventureTaskId": null,
+                      "weeklyAdventureId": null,
+                    },
+                  );
                 },
                 text: 'Start',
               ),

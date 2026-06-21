@@ -1,23 +1,22 @@
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_sound/flutter_sound.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:rewarding_kids/Shared/Custombutton.dart';
+import 'package:rewarding_kids/features/child/widgets/DashedBubble.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
-import 'package:rewarding_kids/features/child/data/models/task_model.dart';
-import 'package:rewarding_kids/features/child/cubit/SubmitTaskCubit.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SimpleRecorder extends StatefulWidget {
   const SimpleRecorder({
     super.key,
     required this.Taskdetails,
     required this.onSubmit,
+    // ✅ باث الصورة بتاعت الكاركتر
   });
-  final TaskModel Taskdetails;
+
+  final dynamic Taskdetails;
   final Function(String path) onSubmit;
 
   @override
@@ -25,199 +24,314 @@ class SimpleRecorder extends StatefulWidget {
 }
 
 class _SimpleRecorderState extends State<SimpleRecorder>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
   final FlutterSoundPlayer _player = FlutterSoundPlayer();
   bool isRecorderReady = false;
   String? recordedFilePath;
 
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
+  // Waveform animation
+  late AnimationController _waveController;
+  final int _barCount = 9;
 
   @override
   void initState() {
     super.initState();
-    initRecorder();
+    _initRecorder();
     _player.openPlayer();
 
-    _pulseController = AnimationController(
+    _waveController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 1),
-    );
-
-    _pulseAnimation = Tween<double>(begin: 0.9, end: 1.15).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+      duration: const Duration(milliseconds: 800),
     );
   }
 
-  Future<void> initRecorder() async {
+  Future<void> _initRecorder() async {
     final status = await Permission.microphone.request();
-    if (status != PermissionStatus.granted) {
-      print("Permission denied!");
-      return;
-    }
-
+    if (status != PermissionStatus.granted) return;
     await _recorder.openRecorder();
     await _player.openPlayer();
-
-    isRecorderReady = true;
-    setState(() {});
+    setState(() => isRecorderReady = true);
   }
 
-  Future<void> startRecording() async {
+  Future<void> _startRecording() async {
     if (!isRecorderReady) return;
-
-    Directory appDocDir = await getApplicationDocumentsDirectory();
+    final dir = await getApplicationDocumentsDirectory();
     recordedFilePath =
-        '${appDocDir.path}/record_${DateTime.now().millisecondsSinceEpoch}.aac';
-
+        '${dir.path}/record_${DateTime.now().millisecondsSinceEpoch}.aac';
     await _recorder.startRecorder(
       toFile: recordedFilePath,
       codec: Codec.aacADTS,
     );
-    _pulseController.repeat(reverse: true);
+    _waveController.repeat(reverse: true);
     setState(() {});
   }
 
-  Future<void> stopRecording() async {
+  Future<void> _stopRecording() async {
     if (!_recorder.isRecording) return;
-
     final path = await _recorder.stopRecorder();
-
     if (path != null && File(path).existsSync()) {
       recordedFilePath = path;
     } else {
       recordedFilePath = null;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Recording failed, try again')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Recording failed, try again')),
+        );
+      }
     }
-
-    _pulseController.stop();
+    _waveController.stop();
     setState(() {});
   }
 
-  Future<void> playRecording() async {
-    if (recordedFilePath == null || !File(recordedFilePath!).existsSync()) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('No recording found')));
-      return;
-    }
-
-    _pulseController.stop();
-
-    await _player.startPlayer(
-      fromURI: recordedFilePath!,
-      whenFinished: () {
-        setState(() {});
-      },
-    );
-  }
-
-  Future<void> restartRecording() async {
-    if (_recorder.isRecording) {
-      await _recorder.stopRecorder();
-    }
-
-    _pulseController.stop();
-    recordedFilePath = null;
-    setState(() {});
-  }
-
-  Future<void> submitVoice() async {
+  Future<void> _submitVoice() async {
     if (recordedFilePath == null) return;
-
-    widget.onSubmit(recordedFilePath!); // ✅ رجعنا الباث
+    widget.onSubmit(recordedFilePath!);
   }
 
   @override
   void dispose() {
     _recorder.closeRecorder();
     _player.closePlayer();
-    _pulseController.dispose();
+    _waveController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isRecording = _recorder.isRecording;
+    final bool hasRecording = recordedFilePath != null && !isRecording;
+
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // ── NEW WORDS badge ──
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            GestureDetector(
-              onTap: restartRecording,
-              child: Container(
-                padding: EdgeInsets.all(4.w),
-                width: 50.w,
-                height: 50.h,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.descColor, width: 1.w),
-                  color: AppColors.Background,
-                ),
-                child: Center(
-                  child: SvgPicture.asset('assets/icons/restart.svg'),
-                ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+              decoration: BoxDecoration(
+                color: const Color(0xffF3EEFF),
+                borderRadius: BorderRadius.circular(20.r),
               ),
-            ),
-            SizedBox(width: 20.w),
-            AnimatedBuilder(
-              animation: _pulseAnimation,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _recorder.isRecording ? _pulseAnimation.value : 1,
-                  child: child,
-                );
-              },
-              child: GestureDetector(
-                onTap: () async {
-                  if (_recorder.isRecording) {
-                    await stopRecording();
-                  } else {
-                    await startRecording();
-                  }
-                },
-                child: Container(
-                  width: 80.w,
-                  height: 80.h,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: const LinearGradient(
-                      colors: [Color(0xffC8AED7), Color(0xffC08ADD)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.auto_awesome,
+                    size: 14.sp,
+                    color: const Color(0xff9B59B6),
+                  ),
+                  SizedBox(width: 4.w),
+                  Text(
+                    'NEW WORDS',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: const Color(0xff9B59B6),
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  child: Center(
-                    child: SvgPicture.asset('assets/icons/microphone.svg'),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(width: 20.w),
-            GestureDetector(
-              onTap: playRecording,
-              child: Container(
-                width: 50.w,
-                height: 50.h,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.descColor, width: 1.w),
-                  color: AppColors.Background,
-                ),
-                child: const Center(
-                  child: Icon(Icons.play_arrow, color: Color(0xff9CA3AF)),
-                ),
+                ],
               ),
             ),
           ],
         ),
 
-        Spacer(),
-        Custombutton(text: "Submit Audio", onPressed: submitVoice),
+        SizedBox(height: 12.h),
+
+        // ── Title ──
+        Text(
+          'Speak this in English',
+          style: TextStyle(
+            fontSize: 22.sp,
+            fontWeight: FontWeight.bold,
+            color: AppColors.titleColor,
+          ),
+        ),
+
+        SizedBox(height: 20.h),
+
+        // ── Character + Speech bubble ──
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Character image
+            Image.asset(
+              "assets/child/record_character1.png",
+              width: 90.w,
+              height: 110.h,
+              fit: BoxFit.contain,
+            ),
+
+            SizedBox(width: 12.w),
+
+            // Speech bubble
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(4.r),
+                    topRight: Radius.circular(16.r),
+                    bottomLeft: Radius.circular(16.r),
+                    bottomRight: Radius.circular(16.r),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: DashedBubble(text: widget.Taskdetails.titleEn ?? ''),
+              ),
+            ),
+          ],
+        ),
+
+        SizedBox(height: 30.h),
+
+        // ── Tap to speak / Waveform ──
+        if (!isRecording && !hasRecording)
+          // State 1: idle → "Tap to speak" outlined button
+          GestureDetector(
+            onTap: _startRecording,
+            child: Container(
+              width: double.infinity,
+              height: 54.h,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(color: const Color(0xffD1C4E9), width: 1.5),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.mic_none,
+                    color: const Color(0xff9B59B6),
+                    size: 20.sp,
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'Tap to speak',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      color: const Color(0xff6B7280),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else if (isRecording)
+          // State 2: recording → waveform animation
+          GestureDetector(
+            onTap: _stopRecording,
+            child: Container(
+              width: double.infinity,
+              height: 54.h,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(color: const Color(0xffD1C4E9), width: 1.5),
+              ),
+              child: Center(
+                child: AnimatedBuilder(
+                  animation: _waveController,
+                  builder: (context, _) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: List.generate(_barCount, (i) {
+                        final phase = (i / _barCount) * math.pi;
+                        final height =
+                            8 +
+                            18 *
+                                math
+                                    .sin(
+                                      _waveController.value * math.pi + phase,
+                                    )
+                                    .abs();
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 2.5.w),
+                          child: Container(
+                            width: 4.w,
+                            height: height.h,
+                            decoration: BoxDecoration(
+                              color: const Color(0xff9B59B6),
+                              borderRadius: BorderRadius.circular(4.r),
+                            ),
+                          ),
+                        );
+                      }),
+                    );
+                  },
+                ),
+              ),
+            ),
+          )
+        else
+          // State 3: has recording → show re-record option
+          GestureDetector(
+            onTap: () {
+              setState(() => recordedFilePath = null);
+            },
+            child: Container(
+              width: double.infinity,
+              height: 54.h,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(color: const Color(0xffD1C4E9), width: 1.5),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green, size: 20.sp),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'Recorded – tap to redo',
+                    style: TextStyle(
+                      fontSize: 15.sp,
+                      color: const Color(0xff6B7280),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+        const Spacer(),
+
+        // ── Check Answers button ──
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: hasRecording ? _submitVoice : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xff2D2D3A),
+              disabledBackgroundColor: const Color(0xff2D2D3A).withOpacity(0.4),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14.r),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+            ),
+            child: Text(
+              'Check Answers',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+
+        SizedBox(height: 8.h),
       ],
     );
   }

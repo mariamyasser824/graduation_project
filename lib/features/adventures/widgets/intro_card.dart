@@ -2,12 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rewarding_kids/Shared/CustomText.dart';
+import 'package:rewarding_kids/features/adventures/models/adv_task_model.dart';
 import 'package:rewarding_kids/features/adventures/widgets/start_adventure_button.dart';
+import 'package:rewarding_kids/features/child/data/models/task_model.dart';
 
 class IntroCard extends StatelessWidget {
-  const IntroCard({super.key});
-
+  const IntroCard({super.key, required this.task});
+  final AdvTaskModel task;
   @override
+  void navigateToTask(BuildContext context, AdvTaskModel task) {
+    switch (task.type) {
+      case AdvTaskType.voice:
+        context.push('/adv_voice_task', extra: task);
+        break;
+
+      case AdvTaskType.image:
+        context.push('/adv_image_task', extra: task);
+        break;
+
+      case AdvTaskType.auto:
+        context.push('/adv_auto_task', extra: task);
+        break;
+    }
+  }
+
   Widget build(BuildContext context) {
     return Stack(
       children: [
@@ -38,7 +56,7 @@ class IntroCard extends StatelessWidget {
               children: [
                 SizedBox(height: 30.h),
                 CustomText(
-                  text: 'Day 1',
+                  text: 'Day ${task.dayNumber}',
                   iscenter: true,
                   color: Color(0xff55425F),
                   size: 24.sp,
@@ -46,7 +64,7 @@ class IntroCard extends StatelessWidget {
                 ),
                 SizedBox(height: 10.h),
                 CustomText(
-                  text: 'Your Adventure Begins! 🚀 ',
+                  text: "Your Adventure Begins 🚀",
                   iscenter: true,
                   color: Color(0xff7B6C83),
                   size: 18.sp,
@@ -54,8 +72,7 @@ class IntroCard extends StatelessWidget {
                 ),
                 SizedBox(height: 10.h),
                 CustomText(
-                  text:
-                      'Let\’s start your first mission and light up the\n path!',
+                  text: task.titleEn,
                   iscenter: true,
                   color: Color(0xff7B6C83),
                   size: 14.sp,
@@ -64,8 +81,7 @@ class IntroCard extends StatelessWidget {
                 SizedBox(height: 15.h),
 
                 CustomText(
-                  text:
-                      'Finish your first task to light up the path and \nunlock surprises 🎁”',
+                  text: task.storyText ?? "",
                   iscenter: true,
                   color: Color(0xff55425F),
                   size: 14.sp,
@@ -75,7 +91,7 @@ class IntroCard extends StatelessWidget {
                 Spacer(),
                 StartAdventureButton(
                   onTap: () {
-                    context.push('/adv_voice_task');
+                    navigateToTask(context, task);
                   },
                   text: 'Let\’s Start',
                 ),

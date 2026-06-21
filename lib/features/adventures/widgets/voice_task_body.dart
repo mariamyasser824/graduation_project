@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rewarding_kids/features/adventures/models/adv_task_model.dart';
+import 'package:rewarding_kids/features/adventures/models/basetask_model.dart';
 import 'package:rewarding_kids/features/adventures/widgets/StackedAdventureCard.dart';
 
 import 'package:rewarding_kids/features/adventures/widgets/check_item.dart';
 import 'package:rewarding_kids/features/adventures/widgets/start_adventure_button.dart';
 import 'package:rewarding_kids/features/adventures/widgets/task_header.dart';
+import 'package:rewarding_kids/features/child/cubit/SubmitTaskCubit.dart';
 
 class VoiceTaskBody extends StatelessWidget {
-  const VoiceTaskBody({super.key});
+  final AdvTaskModel task;
+
+  const VoiceTaskBody({super.key, required this.task});
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +28,9 @@ class VoiceTaskBody extends StatelessWidget {
           ),
           SizedBox(height: 30.h),
           AdventureCard(
-            title: "Count the magic stars to open the castle gate.",
-            subtitle: "Win 40 points ",
-            step: "Step 1 of 7",
+            title: task.titleEn,
+            subtitle: " Win ${task.stars} points",
+            step: "Step ${task.dayNumber} of 7",
             icon: Icons.mic,
             onMicTap: () {
               //  print("Mic clicked");
@@ -39,7 +44,15 @@ class VoiceTaskBody extends StatelessWidget {
           Spacer(),
           StartAdventureButton(
             onTap: () {
-              context.push('/adv_image_task');
+              context.push(
+                '/record_task',
+                extra: {
+                  "type": SubmitType.adventure,
+                  "task": task,
+                  "adventureTaskId": task.adventureTaskId,
+                  "weeklyAdventureId": task.weeklyAdventureId,
+                },
+              );
             },
             text: 'Record  My Answer',
           ),

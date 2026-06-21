@@ -36,7 +36,7 @@ class _LevelsScreenState extends State<LevelsScreen> {
             }
 
             if (state is AdventureDetailsSuccess) {
-              return LevelBody();
+              return LevelBody(details: state.details);
             }
 
             if (state is AdventureDetailsError) {

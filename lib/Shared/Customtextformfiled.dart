@@ -19,9 +19,8 @@ class Customtextformfiled extends StatefulWidget {
   final bool isPassword;
   final IconData icon;
   final TextEditingController controller;
-
-  /// Optional validator
   final String? Function(String?)? validator;
+
   @override
   State<Customtextformfiled> createState() => _CustomtextformfiledState();
 }
@@ -51,77 +50,80 @@ class _CustomtextformfiledState extends State<Customtextformfiled> {
           CustomText(
             text: widget.label,
             iscenter: false,
-            size: 16.sp,
+            size: 14.sp,
             weight: FontWeight.w500,
             color: AppColors.titleColor,
           ),
 
-          SizedBox(height: 8.h),
+          SizedBox(height: 6.h),
 
-          SizedBox(
-            width: double.infinity,
-            height: 48.h,
-            child: TextFormField(
-              controller: widget.controller,
-              cursorColor: AppColors.ActiveColor,
-              obscureText: _obscureText,
-              validator:
-                  widget.validator ??
-                  (v) {
-                    if (v == null || v.isEmpty) {
-                      return 'please fill ${widget.label}';
-                    }
-                    return null;
-                  },
-
-              decoration: InputDecoration(
-                errorText: null,
-                hintText: widget.hint,
-                hintStyle: TextStyle(
-                  color: AppColors.descColor,
-                  fontSize: 14.sp,
+          // ✅ شيلنا الـ SizedBox بـ height ثابتة
+          TextFormField(
+            controller: widget.controller,
+            cursorColor: AppColors.ActiveColor,
+            obscureText: _obscureText,
+            validator: widget.validator ??
+                (v) {
+                  if (v == null || v.isEmpty) {
+                    return 'Please fill ${widget.label}';
+                  }
+                  return null;
+                },
+            decoration: InputDecoration(
+              hintText: widget.hint,
+              hintStyle: TextStyle(
+                color: AppColors.descColor,
+                fontSize: 13.sp,
+              ),
+              // ✅ contentPadding بدل height ثابتة
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12.w,
+                vertical: 13.h,
+              ),
+              prefixIcon: Icon(
+                widget.icon,
+                color: AppColors.descColor,
+                size: 20.sp,
+              ),
+              // ✅ suffixIcon بدل suffix - ده اللي بيخلي التوجل يشتغل
+              suffixIcon: widget.isPassword
+                  ? GestureDetector(
+                      onTap: _togglePassword,
+                      child: Icon(
+                        _obscureText
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        size: 20.sp,
+                        color: AppColors.descColor,
+                      ),
+                    )
+                  : null,
+              filled: true,
+              fillColor: Colors.white,
+              // ✅ errorStyle صغير ومحدد
+              errorStyle: TextStyle(
+                fontSize: 11.sp,
+                height: 1.2,
+              ),
+              // ✅ errorBorder بدون gapPadding غلط
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.r),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.r),
+                borderSide: BorderSide(
+                  color: AppColors.ActiveColor,
+                  width: 1.w,
                 ),
-                prefixIcon: Icon(
-                  widget.icon,
-                  color: AppColors.descColor,
-                  size: 22.sp,
-                ),
-                suffix: widget.isPassword
-                    ? Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20.h),
-                        child: SizedBox(
-                          width: 15.w,
-                          height: 15.h,
-                          child: GestureDetector(
-                            onTap: _togglePassword,
-                            child: Center(
-                              child: Icon(
-                                Icons.remove_red_eye_outlined,
-                                size: 24.sp,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    : SizedBox(width: 15.w, height: 15.h),
-                filled: true,
-                fillColor: Colors.white,
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  borderSide: BorderSide.none,
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  borderSide: const BorderSide(color: Colors.red),
-                  gapPadding: BorderSide.strokeAlignOutside,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.r),
-                  borderSide: BorderSide(
-                    color: AppColors.ActiveColor,
-                    width: 1,
-                  ),
-                ),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.r),
+                borderSide: const BorderSide(color: Colors.red, width: 1),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.r),
+                borderSide: const BorderSide(color: Colors.red, width: 1),
               ),
             ),
           ),

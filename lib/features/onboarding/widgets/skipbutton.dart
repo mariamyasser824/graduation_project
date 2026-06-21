@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rewarding_kids/Shared/CustomText.dart';
 import 'package:rewarding_kids/core/constants/app_colors.dart';
 import 'package:rewarding_kids/core/utils/pref_helper.dart';
 
@@ -14,17 +15,24 @@ class Skipbutton extends StatelessWidget {
         await PrefHelper.setOnBoardingSeen();
         context.push('/getstarted');
       },
-
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+        width: 60.w,
+        height: 28.h,
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
         decoration: BoxDecoration(
-          color: AppColors.buttonfillColor,
+          color: AppColors.buttonfillColor, // #E8DDEE
           borderRadius: BorderRadius.circular(26.r),
-          border: Border.all(color: AppColors.buttonborderColor),
+          border: Border.all(
+            color: AppColors.buttonborderColor, // #D0C0D8
+            width: 1,
+          ),
         ),
-        child: Text(
-          'Skip',
-          style: TextStyle(fontSize: 16.sp, color: AppColors.titleColor),
+        child: CustomText(
+          text: "Skip",
+          iscenter: true,
+          size: 13.sp,
+          weight: FontWeight.w500,
+          color: AppColors.titleColor,
         ),
       ),
     );
